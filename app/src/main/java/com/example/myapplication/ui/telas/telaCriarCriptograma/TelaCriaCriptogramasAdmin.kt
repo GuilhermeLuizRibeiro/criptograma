@@ -1,4 +1,4 @@
-package com.example.myapplication.ui.telas.telaDoAdmin
+package com.example.myapplication.ui.telas.telaCriarCriptograma
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas

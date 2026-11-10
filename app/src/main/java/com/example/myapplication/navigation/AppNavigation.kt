@@ -5,8 +5,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.myapplication.ui.telas.telaDeInicio.TelaInicio
-import com.example.myapplication.ui.telas.telaDoAdmin.TelaCriaCriptogramasAdmin
-import com.example.myapplication.ui.telas.telaDoAdmin.TelaListaCriptogramasAdmin
+import com.example.myapplication.ui.telas.telaCriarCriptograma.TelaCriaCriptogramasAdmin
+import com.example.myapplication.ui.telas.telaListaEditaExcluiCriptograma.TelaListaCriptogramasAdmin
 
 @Composable
 fun AppNavigation() {

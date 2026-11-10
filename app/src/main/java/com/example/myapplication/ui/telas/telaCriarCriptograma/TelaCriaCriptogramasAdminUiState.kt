@@ -1,4 +1,4 @@
-package com.example.myapplication.ui.telas.telaDoAdmin
+package com.example.myapplication.ui.telas.telaCriarCriptograma
 
 import com.example.myapplication.data.local.entity.Criptograma
 import com.example.myapplication.model.ErrosFormCriptograma
