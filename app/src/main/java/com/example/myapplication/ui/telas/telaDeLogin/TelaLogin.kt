@@ -1,4 +1,4 @@
-package com.example.myapplication.ui.telas.telaDeInicio
+package com.example.myapplication.ui.telas.telaDeLogin
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -31,7 +31,7 @@ import com.example.myapplication.ui.theme.CorFundoCard
 import com.example.myapplication.ui.theme.CorFundoTela
 
 @Composable
-fun TelaInicio(
+fun TelaLogin(
     modifier: Modifier = Modifier,
     onAdminClick: () -> Unit = {},
     onJogadorClick: () -> Unit = {},
@@ -109,5 +109,5 @@ fun TelaInicio(
 @Preview(showBackground = true)
 @Composable
 fun TelaInicioPreview() {
-    TelaInicio()
+    TelaLogin()
 }
