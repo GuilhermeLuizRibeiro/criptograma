@@ -25,6 +25,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.myapplication.ui.theme.CorBordaCard
 import com.example.myapplication.ui.theme.CorBotaoRoxo
 import com.example.myapplication.ui.theme.CorFundoCard
@@ -32,6 +33,27 @@ import com.example.myapplication.ui.theme.CorFundoTela
 
 @Composable
 fun TelaLogin(
+    modifier: Modifier = Modifier,
+    viewModel: TelaLoginViewModel = viewModel(),
+    onAdminClick: () -> Unit = {},
+    onJogadorClick: () -> Unit = {},
+) {
+    val navegarParaAdmin = onAdminClick
+    val navegarParaJogador = onJogadorClick
+
+    TelaLoginContent(
+        modifier = modifier,
+        onAdminClick = {
+            viewModel.entrarComoAdmin(onSucesso = navegarParaAdmin)
+        },
+        onJogadorClick = {
+            viewModel.entrarComoJogador(onSucesso = navegarParaJogador)
+        }
+    )
+}
+
+@Composable
+fun TelaLoginContent(
     modifier: Modifier = Modifier,
     onAdminClick: () -> Unit = {},
     onJogadorClick: () -> Unit = {},
@@ -109,5 +131,5 @@ fun TelaLogin(
 @Preview(showBackground = true)
 @Composable
 fun TelaInicioPreview() {
-    TelaLogin()
+    TelaLoginContent()
 }

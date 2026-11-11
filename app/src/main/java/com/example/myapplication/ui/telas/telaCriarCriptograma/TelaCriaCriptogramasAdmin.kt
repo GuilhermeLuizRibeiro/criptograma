@@ -29,6 +29,7 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -39,6 +40,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -58,11 +60,18 @@ import com.example.myapplication.ui.theme.CorTextoVermelho
 @Composable
 fun TelaCriaCriptogramasAdmin(
     modifier: Modifier = Modifier,
+    criptogramaId: Int? = null,
     viewModel: TelaCriaCriptogramasAdminViewModel = viewModel(),
     onSalvarClick: (Criptograma) -> Unit = {},
     onCancelarClick: () -> Unit = {},
 ) {
     val uiState by viewModel.uiState.collectAsState()
+
+    LaunchedEffect(criptogramaId) {
+        if (criptogramaId != null && criptogramaId > 0) {
+            viewModel.carregarCriptogramaPorId(criptogramaId)
+        }
+    }
 
     TelaCriaCriptogramasAdminContent(
         uiState = uiState,
@@ -72,10 +81,10 @@ fun TelaCriaCriptogramasAdmin(
         onAutorChange = viewModel::onAutorChange,
         onCategoriaChange = viewModel::onCategoriaSelecionadaChange,
         onDificuldadeChange = viewModel::onDificuldadeSelecionadaChange,
+        onOrigemChange = viewModel::onOrigemSelecionadaChange,
         onMenuExpandidoChange = viewModel::onMenuCategoriaExpandidoChange,
         onSalvarClick = {
-            val novoCriptograma = viewModel.criarCriptograma()
-            onSalvarClick(novoCriptograma)
+            viewModel.salvarCriptograma(onSucesso = onSalvarClick)
         },
         onCancelarClick = onCancelarClick
     )
@@ -90,6 +99,7 @@ fun TelaCriaCriptogramasAdminContent(
     onAutorChange: (String) -> Unit = {},
     onCategoriaChange: (String) -> Unit = {},
     onDificuldadeChange: (Dificuldade) -> Unit = {},
+    onOrigemChange: (String) -> Unit = {},
     onMenuExpandidoChange: (Boolean) -> Unit = {},
     onSalvarClick: () -> Unit = {},
     onCancelarClick: () -> Unit = {},
@@ -104,7 +114,7 @@ fun TelaCriaCriptogramasAdminContent(
                 .padding(paddingValues)
                 .padding(horizontal = 16.dp, vertical = 12.dp)
         ) {
-            // Cabeçalho Topo: "Novo caso" à esquerda, "Cancelar" à direita
+            // Cabeçalho Topo: "Novo caso" / "Editar caso" à esquerda, "Cancelar" à direita
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -113,7 +123,7 @@ fun TelaCriaCriptogramasAdminContent(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Novo caso",
+                    text = if (uiState.editando) "Editar caso" else "Novo caso",
                     fontFamily = FontFamily.Monospace,
                     fontWeight = FontWeight.Bold,
                     fontSize = 22.sp,
@@ -167,8 +177,8 @@ fun TelaCriaCriptogramasAdminContent(
                             colors = OutlinedTextFieldDefaults.colors(
                                 focusedContainerColor = CorInputFundo,
                                 unfocusedContainerColor = CorInputFundo,
-                                focusedBorderColor = Color(0xFF800020),
-                                unfocusedBorderColor = Color(0xFF800020),
+                                focusedBorderColor = CorBordaCard,
+                                unfocusedBorderColor = CorBordaCard,
                                 focusedTextColor = CorTextoEscuro,
                                 unfocusedTextColor = CorTextoEscuro
                             ),
@@ -176,14 +186,16 @@ fun TelaCriaCriptogramasAdminContent(
                             maxLines = 4,
                             modifier = Modifier.fillMaxWidth()
                         )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            text = "Obrigatória para salvar.",
-                            fontFamily = FontFamily.Monospace,
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = CorTextoVermelho
-                        )
+                        if (uiState.tentouSalvar && uiState.erros.fraseTraducao != null) {
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = uiState.erros.fraseTraducao ?: "Obrigatória para salvar.",
+                                fontFamily = FontFamily.Monospace,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = CorTextoVermelho
+                            )
+                        }
                     }
 
                     // Campo 2: Original (inglês)
@@ -354,12 +366,31 @@ fun TelaCriaCriptogramasAdminContent(
 
                     Spacer(modifier = Modifier.height(4.dp))
 
-                    Text(
-                        text = "Origem: API de citações",
-                        fontFamily = FontFamily.Monospace,
-                        fontSize = 12.sp,
-                        color = CorTextoSecundario
-                    )
+                    // Campo 6: Origem (Manual / API de citações)
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = "Origem: ${uiState.origemSelecionada}",
+                            fontFamily = FontFamily.Monospace,
+                            fontSize = 12.sp,
+                            color = CorTextoSecundario
+                        )
+                        Text(
+                            text = if (uiState.origemSelecionada == "Manual") "Mudar p/ API" else "Mudar p/ Manual",
+                            fontFamily = FontFamily.Monospace,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = CorTextoEscuro,
+                            textDecoration = TextDecoration.Underline,
+                            modifier = Modifier.clickable {
+                                val nova = if (uiState.origemSelecionada == "Manual") "API de citações" else "Manual"
+                                onOrigemChange(nova)
+                            }
+                        )
+                    }
                 }
             }
 
