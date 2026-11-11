@@ -10,8 +10,10 @@ data class TelaCriaCriptogramasAdminUiState(
     val autor: String = "",
     val categoriaSelecionada: String = "Citações",
     val dificuldadeSelecionada: Dificuldade = Dificuldade.FACIL,
+    val origemSelecionada: String = "Manual",
     val menuCategoriaExpandido: Boolean = false,
     val categoriasDisponiveis: List<String> = listOf("Citações", "Provérbios", "Cinema", "Literatura", "História"),
+    val origensDisponiveis: List<String> = listOf("Manual", "API de citações"),
     val criptogramaEmEdicao: Criptograma? = null,
     val tentouSalvar: Boolean = false,
 ) {

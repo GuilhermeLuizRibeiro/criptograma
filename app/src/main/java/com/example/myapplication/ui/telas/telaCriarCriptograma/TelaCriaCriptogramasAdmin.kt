@@ -40,6 +40,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -80,6 +81,7 @@ fun TelaCriaCriptogramasAdmin(
         onAutorChange = viewModel::onAutorChange,
         onCategoriaChange = viewModel::onCategoriaSelecionadaChange,
         onDificuldadeChange = viewModel::onDificuldadeSelecionadaChange,
+        onOrigemChange = viewModel::onOrigemSelecionadaChange,
         onMenuExpandidoChange = viewModel::onMenuCategoriaExpandidoChange,
         onSalvarClick = {
             viewModel.salvarCriptograma(onSucesso = onSalvarClick)
@@ -97,6 +99,7 @@ fun TelaCriaCriptogramasAdminContent(
     onAutorChange: (String) -> Unit = {},
     onCategoriaChange: (String) -> Unit = {},
     onDificuldadeChange: (Dificuldade) -> Unit = {},
+    onOrigemChange: (String) -> Unit = {},
     onMenuExpandidoChange: (Boolean) -> Unit = {},
     onSalvarClick: () -> Unit = {},
     onCancelarClick: () -> Unit = {},
@@ -174,8 +177,8 @@ fun TelaCriaCriptogramasAdminContent(
                             colors = OutlinedTextFieldDefaults.colors(
                                 focusedContainerColor = CorInputFundo,
                                 unfocusedContainerColor = CorInputFundo,
-                                focusedBorderColor = if (uiState.tentouSalvar && uiState.erros.fraseTraducao != null) Color.Red else Color(0xFF800020),
-                                unfocusedBorderColor = if (uiState.tentouSalvar && uiState.erros.fraseTraducao != null) Color.Red else Color(0xFF800020),
+                                focusedBorderColor = CorBordaCard,
+                                unfocusedBorderColor = CorBordaCard,
                                 focusedTextColor = CorTextoEscuro,
                                 unfocusedTextColor = CorTextoEscuro
                             ),
@@ -363,12 +366,31 @@ fun TelaCriaCriptogramasAdminContent(
 
                     Spacer(modifier = Modifier.height(4.dp))
 
-                    Text(
-                        text = "Origem: API de citações",
-                        fontFamily = FontFamily.Monospace,
-                        fontSize = 12.sp,
-                        color = CorTextoSecundario
-                    )
+                    // Campo 6: Origem (Manual / API de citações)
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = "Origem: ${uiState.origemSelecionada}",
+                            fontFamily = FontFamily.Monospace,
+                            fontSize = 12.sp,
+                            color = CorTextoSecundario
+                        )
+                        Text(
+                            text = if (uiState.origemSelecionada == "Manual") "Mudar p/ API" else "Mudar p/ Manual",
+                            fontFamily = FontFamily.Monospace,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = CorTextoEscuro,
+                            textDecoration = TextDecoration.Underline,
+                            modifier = Modifier.clickable {
+                                val nova = if (uiState.origemSelecionada == "Manual") "API de citações" else "Manual"
+                                onOrigemChange(nova)
+                            }
+                        )
+                    }
                 }
             }
 

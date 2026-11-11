@@ -316,7 +316,7 @@ private fun ItemCriptogramaAdmin(
                 }
 
                 Text(
-                    text = criptograma.idExterno ?: "Manual",
+                    text = if (criptograma.idExterno?.startsWith("API") == true) "API" else "Manual",
                     fontFamily = FontFamily.Monospace,
                     fontSize = 11.sp,
                     color = CorTextoSecundario

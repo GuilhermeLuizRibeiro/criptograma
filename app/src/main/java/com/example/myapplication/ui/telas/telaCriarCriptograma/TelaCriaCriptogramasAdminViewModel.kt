@@ -33,7 +33,8 @@ class TelaCriaCriptogramasAdminViewModel(application: Application) : AndroidView
                         fraseOriginal = cripto.fraseOriginal ?: "",
                         autor = cripto.autor,
                         categoriaSelecionada = cripto.categoria,
-                        dificuldadeSelecionada = cripto.dificuldade
+                        dificuldadeSelecionada = cripto.dificuldade,
+                        origemSelecionada = if (cripto.idExterno?.startsWith("API") == true) "API de citações" else "Manual"
                     )
                 }
             }
@@ -49,7 +50,7 @@ class TelaCriaCriptogramasAdminViewModel(application: Application) : AndroidView
     }
 
     fun onAutorChange(novoAutor: String) {
-        _uiState.update { it.copy(novoAutor) }
+        _uiState.update { it.copy(autor = novoAutor) }
     }
 
     fun onCategoriaSelecionadaChange(novaCategoria: String) {
@@ -58,6 +59,10 @@ class TelaCriaCriptogramasAdminViewModel(application: Application) : AndroidView
 
     fun onDificuldadeSelecionadaChange(novaDificuldade: Dificuldade) {
         _uiState.update { it.copy(dificuldadeSelecionada = novaDificuldade) }
+    }
+
+    fun onOrigemSelecionadaChange(novaOrigem: String) {
+        _uiState.update { it.copy(origemSelecionada = novaOrigem) }
     }
 
     fun onMenuCategoriaExpandidoChange(expandido: Boolean) {
@@ -77,6 +82,14 @@ class TelaCriaCriptogramasAdminViewModel(application: Application) : AndroidView
 
     private fun criarCriptograma(): Criptograma {
         val state = _uiState.value
+        val prefixo = if (state.origemSelecionada == "Manual") "MANUAL" else "API"
+
+        val idExternoFinal = if (state.criptogramaEmEdicao != null) {
+            state.criptogramaEmEdicao.idExterno ?: "${prefixo}_${UUID.randomUUID().toString().take(8)}"
+        } else {
+            "${prefixo}_${UUID.randomUUID().toString().take(8)}"
+        }
+
         return Criptograma(
             id = state.criptogramaEmEdicao?.id ?: 0,
             fraseOriginal = state.fraseOriginal,
@@ -84,7 +97,7 @@ class TelaCriaCriptogramasAdminViewModel(application: Application) : AndroidView
             autor = state.autor,
             categoria = state.categoriaSelecionada,
             dificuldade = state.dificuldadeSelecionada,
-            idExterno = state.criptogramaEmEdicao?.idExterno ?: "API_${UUID.randomUUID().toString().take(8)}"
+            idExterno = idExternoFinal
         )
     }
 }
