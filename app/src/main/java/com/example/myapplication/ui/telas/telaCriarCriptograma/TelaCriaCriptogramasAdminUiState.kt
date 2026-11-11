@@ -6,10 +6,10 @@ import com.example.myapplication.model.enums.Dificuldade
 
 data class TelaCriaCriptogramasAdminUiState(
     val fraseTraducao: String = "",
-    val fraseOriginal: String = "The secret of getting ahead is getting started.",
-    val autor: String = "Mark Twain",
+    val fraseOriginal: String = "",
+    val autor: String = "",
     val categoriaSelecionada: String = "Citações",
-    val dificuldadeSelecionada: Dificuldade = Dificuldade.DIFICIL,
+    val dificuldadeSelecionada: Dificuldade = Dificuldade.FACIL,
     val menuCategoriaExpandido: Boolean = false,
     val categoriasDisponiveis: List<String> = listOf("Citações", "Provérbios", "Cinema", "Literatura", "História"),
     val criptogramaEmEdicao: Criptograma? = null,

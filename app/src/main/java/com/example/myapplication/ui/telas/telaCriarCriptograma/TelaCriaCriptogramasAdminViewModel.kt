@@ -21,17 +21,22 @@ class TelaCriaCriptogramasAdminViewModel(application: Application) : AndroidView
     private val _uiState = MutableStateFlow(TelaCriaCriptogramasAdminUiState())
     val uiState: StateFlow<TelaCriaCriptogramasAdminUiState> = _uiState.asStateFlow()
 
-    fun carregarCriptogramaParaEdicao(criptograma: Criptograma?) {
-        if (criptograma == null) return
-        _uiState.update {
-            it.copy(
-                criptogramaEmEdicao = criptograma,
-                fraseTraducao = criptograma.fraseTraducao,
-                fraseOriginal = criptograma.fraseOriginal ?: "",
-                autor = criptograma.autor,
-                categoriaSelecionada = criptograma.categoria,
-                dificuldadeSelecionada = criptograma.dificuldade
-            )
+    fun carregarCriptogramaPorId(id: Int) {
+        if (id <= 0) return
+        viewModelScope.launch {
+            val cripto = repository.buscarPorId(id)
+            if (cripto != null) {
+                _uiState.update {
+                    it.copy(
+                        criptogramaEmEdicao = cripto,
+                        fraseTraducao = cripto.fraseTraducao,
+                        fraseOriginal = cripto.fraseOriginal ?: "",
+                        autor = cripto.autor,
+                        categoriaSelecionada = cripto.categoria,
+                        dificuldadeSelecionada = cripto.dificuldade
+                    )
+                }
+            }
         }
     }
 
@@ -44,7 +49,7 @@ class TelaCriaCriptogramasAdminViewModel(application: Application) : AndroidView
     }
 
     fun onAutorChange(novoAutor: String) {
-        _uiState.update { it.copy(autor = novoAutor) }
+        _uiState.update { it.copy(novoAutor) }
     }
 
     fun onCategoriaSelecionadaChange(novaCategoria: String) {

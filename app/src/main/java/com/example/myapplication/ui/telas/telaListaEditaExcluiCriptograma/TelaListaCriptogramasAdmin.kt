@@ -1,7 +1,6 @@
 package com.example.myapplication.ui.telas.telaListaEditaExcluiCriptograma
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -33,12 +32,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
@@ -48,6 +42,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.myapplication.data.local.entity.Criptograma
 import com.example.myapplication.model.enums.Dificuldade
+import com.example.myapplication.ui.componentes.NavegacaoRodapeAdmin
 import com.example.myapplication.ui.theme.CorBadgeEscuro
 import com.example.myapplication.ui.theme.CorBordaCard
 import com.example.myapplication.ui.theme.CorBotaoRoxo
@@ -94,26 +89,10 @@ fun TelaListaCriptogramasAdminContent(
     onEditarClick: (Criptograma) -> Unit = {},
     onExcluirClick: (Criptograma) -> Unit = {},
 ) {
-    // Filtra a lista conforme busca e aba de dificuldade selecionada
-    val listaFiltrada = uiState.listaCriptogramas.filter { item ->
-        val bateFiltroBusca = uiState.busca.isBlank() ||
-                item.fraseTraducao.contains(uiState.busca, ignoreCase = true) ||
-                item.autor.contains(uiState.busca, ignoreCase = true)
-
-        val bateFiltroDificuldade = when (uiState.filtroSelecionado) {
-            "Fácil" -> item.dificuldade == Dificuldade.FACIL
-            "Médio" -> item.dificuldade == Dificuldade.MEDIO
-            "Difícil" -> item.dificuldade == Dificuldade.DIFICIL
-            else -> true
-        }
-
-        bateFiltroBusca && bateFiltroDificuldade
-    }
-
     Scaffold(
         containerColor = CorFundoTela,
         bottomBar = {
-            NavegacaoInferiorAdmin(
+            NavegacaoRodapeAdmin(
                 itemSelecionado = uiState.itemNavegacaoSelecionado,
                 onItemClick = onItemNavegacaoChange
             )
@@ -142,7 +121,7 @@ fun TelaListaCriptogramasAdminContent(
                     color = CorTextoEscuro
                 )
                 Text(
-                    text = "${listaFiltrada.size * 10 + 2} casos",
+                    text = "${uiState.quantidadeCasos} casos",
                     fontFamily = FontFamily.Monospace,
                     fontSize = 14.sp,
                     color = CorTextoSecundario
@@ -230,7 +209,7 @@ fun TelaListaCriptogramasAdminContent(
                         verticalArrangement = Arrangement.spacedBy(10.dp),
                         modifier = Modifier.weight(1f)
                     ) {
-                        items(listaFiltrada) { criptograma ->
+                        items(uiState.listaFiltrada) { criptograma ->
                             ItemCriptogramaAdmin(
                                 criptograma = criptograma,
                                 onEditar = { onEditarClick(criptograma) },
@@ -390,129 +369,6 @@ private fun ItemCriptogramaAdmin(
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun NavegacaoInferiorAdmin(
-    itemSelecionado: String,
-    onItemClick: (String) -> Unit = {},
-) {
-    Card(
-        colors = CardDefaults.cardColors(containerColor = CorFundoCard),
-        border = BorderStroke(1.dp, CorBordaCard),
-        shape = RoundedCornerShape(topStart = 0.dp, topEnd = 0.dp),
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp),
-            horizontalArrangement = Arrangement.SpaceAround,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            val itens = listOf("Painel", "Casos", "Jogar", "Perfil")
-
-            itens.forEach { titulo ->
-                val ativo = titulo == itemSelecionado
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.clickable { onItemClick(titulo) }
-                ) {
-                    if (ativo) {
-                        Box(
-                            modifier = Modifier
-                                .width(36.dp)
-                                .height(3.dp)
-                                .background(CorBotaoRoxo, RoundedCornerShape(2.dp))
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                    } else {
-                        Spacer(modifier = Modifier.height(7.dp))
-                    }
-
-                    when (titulo) {
-                        "Painel" -> PainelIcon(CorTextoEscuro)
-                        "Casos" -> CasosIcon(CorTextoEscuro)
-                        "Jogar" -> JogarIcon(CorTextoEscuro)
-                        "Perfil" -> PerfilIcon(CorTextoEscuro)
-                    }
-
-                    Spacer(modifier = Modifier.height(2.dp))
-
-                    Text(
-                        text = titulo,
-                        fontFamily = FontFamily.Monospace,
-                        fontSize = 11.sp,
-                        fontWeight = if (ativo) FontWeight.Bold else FontWeight.Normal,
-                        color = CorTextoEscuro
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun PainelIcon(tint: Color) {
-    Canvas(modifier = Modifier.size(20.dp)) {
-        val gap = 3.dp.toPx()
-        val half = (size.width - gap) / 2
-        drawRoundRect(tint, topLeft = Offset(0f, 0f), size = Size(half, half), cornerRadius = CornerRadius(4f))
-        drawRoundRect(tint, topLeft = Offset(half + gap, 0f), size = Size(half, half), cornerRadius = CornerRadius(4f))
-        drawRoundRect(tint, topLeft = Offset(0f, half + gap), size = Size(half, half), cornerRadius = CornerRadius(4f))
-        drawRoundRect(tint, topLeft = Offset(half + gap, half + gap), size = Size(half, half), cornerRadius = CornerRadius(4f))
-    }
-}
-
-@Composable
-private fun CasosIcon(tint: Color) {
-    Canvas(modifier = Modifier.size(20.dp)) {
-        val path = Path().apply {
-            moveTo(0f, size.height * 0.25f)
-            lineTo(size.width * 0.4f, size.height * 0.25f)
-            lineTo(size.width * 0.55f, size.height * 0.4f)
-            lineTo(size.width, size.height * 0.4f)
-            lineTo(size.width, size.height * 0.9f)
-            lineTo(0f, size.height * 0.9f)
-            close()
-        }
-        drawPath(path, color = tint, style = Stroke(width = 2.dp.toPx()))
-    }
-}
-
-@Composable
-private fun JogarIcon(tint: Color) {
-    Canvas(modifier = Modifier.size(20.dp)) {
-        val path = Path().apply {
-            moveTo(size.width * 0.2f, size.height * 0.15f)
-            lineTo(size.width * 0.85f, size.height * 0.5f)
-            lineTo(size.width * 0.2f, size.height * 0.85f)
-            close()
-        }
-        drawPath(path, color = tint)
-    }
-}
-
-@Composable
-private fun PerfilIcon(tint: Color) {
-    Canvas(modifier = Modifier.size(20.dp)) {
-        val strokeWidth = 2.dp.toPx()
-        drawCircle(
-            color = tint,
-            radius = size.width * 0.22f,
-            center = Offset(size.width * 0.5f, size.height * 0.32f),
-            style = Stroke(width = strokeWidth)
-        )
-        val path = Path().apply {
-            moveTo(size.width * 0.15f, size.height * 0.9f)
-            cubicTo(
-                size.width * 0.15f, size.height * 0.65f,
-                size.width * 0.85f, size.height * 0.65f,
-                size.width * 0.85f, size.height * 0.9f
-            )
-        }
-        drawPath(path, color = tint, style = Stroke(width = strokeWidth))
     }
 }
 

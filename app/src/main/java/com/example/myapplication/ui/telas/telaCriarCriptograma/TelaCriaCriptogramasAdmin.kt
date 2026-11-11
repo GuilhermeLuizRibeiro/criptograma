@@ -29,6 +29,7 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -58,11 +59,18 @@ import com.example.myapplication.ui.theme.CorTextoVermelho
 @Composable
 fun TelaCriaCriptogramasAdmin(
     modifier: Modifier = Modifier,
+    criptogramaId: Int? = null,
     viewModel: TelaCriaCriptogramasAdminViewModel = viewModel(),
     onSalvarClick: (Criptograma) -> Unit = {},
     onCancelarClick: () -> Unit = {},
 ) {
     val uiState by viewModel.uiState.collectAsState()
+
+    LaunchedEffect(criptogramaId) {
+        if (criptogramaId != null && criptogramaId > 0) {
+            viewModel.carregarCriptogramaPorId(criptogramaId)
+        }
+    }
 
     TelaCriaCriptogramasAdminContent(
         uiState = uiState,
@@ -103,7 +111,7 @@ fun TelaCriaCriptogramasAdminContent(
                 .padding(paddingValues)
                 .padding(horizontal = 16.dp, vertical = 12.dp)
         ) {
-            // Cabeçalho Topo: "Novo caso" à esquerda, "Cancelar" à direita
+            // Cabeçalho Topo: "Novo caso" / "Editar caso" à esquerda, "Cancelar" à direita
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -112,7 +120,7 @@ fun TelaCriaCriptogramasAdminContent(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Novo caso",
+                    text = if (uiState.editando) "Editar caso" else "Novo caso",
                     fontFamily = FontFamily.Monospace,
                     fontWeight = FontWeight.Bold,
                     fontSize = 22.sp,
@@ -166,8 +174,8 @@ fun TelaCriaCriptogramasAdminContent(
                             colors = OutlinedTextFieldDefaults.colors(
                                 focusedContainerColor = CorInputFundo,
                                 unfocusedContainerColor = CorInputFundo,
-                                focusedBorderColor = Color(0xFF800020),
-                                unfocusedBorderColor = Color(0xFF800020),
+                                focusedBorderColor = if (uiState.tentouSalvar && uiState.erros.fraseTraducao != null) Color.Red else Color(0xFF800020),
+                                unfocusedBorderColor = if (uiState.tentouSalvar && uiState.erros.fraseTraducao != null) Color.Red else Color(0xFF800020),
                                 focusedTextColor = CorTextoEscuro,
                                 unfocusedTextColor = CorTextoEscuro
                             ),
@@ -175,14 +183,16 @@ fun TelaCriaCriptogramasAdminContent(
                             maxLines = 4,
                             modifier = Modifier.fillMaxWidth()
                         )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            text = "Obrigatória para salvar.",
-                            fontFamily = FontFamily.Monospace,
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = CorTextoVermelho
-                        )
+                        if (uiState.tentouSalvar && uiState.erros.fraseTraducao != null) {
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = uiState.erros.fraseTraducao ?: "Obrigatória para salvar.",
+                                fontFamily = FontFamily.Monospace,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = CorTextoVermelho
+                            )
+                        }
                     }
 
                     // Campo 2: Original (inglês)
