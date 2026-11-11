@@ -42,24 +42,21 @@ class TelaListaCriptogramasAdminViewModel(application: Application) : AndroidVie
     private suspend fun popularDadosIniciaisSeVazio() {
         val iniciais = listOf(
             Criptograma(
-                fraseOriginal = "The secret of getting ahead is getting started.",
-                fraseTraducao = "O segredo para progredir é começar.",
+                frase = "O segredo para progredir é começar.",
                 autor = "Mark Twain",
                 categoria = "Citações",
                 dificuldade = Dificuldade.DIFICIL,
                 idExterno = "API_0007"
             ),
             Criptograma(
-                fraseOriginal = "He who tells a tale adds a point.",
-                fraseTraducao = "Quem conta um conto aumenta um ponto.",
+                frase = "Quem conta um conto aumenta um ponto.",
                 autor = "Provérbio",
                 categoria = "Citações",
                 dificuldade = Dificuldade.MEDIO,
                 idExterno = "MANUAL_0008"
             ),
             Criptograma(
-                fraseOriginal = "Imagination is more important than knowledge.",
-                fraseTraducao = "A imaginação é mais importante que o conhecimento.",
+                frase = "A imaginação é mais importante que o conhecimento.",
                 autor = "Albert Einstein",
                 categoria = "Citações",
                 dificuldade = Dificuldade.FACIL,

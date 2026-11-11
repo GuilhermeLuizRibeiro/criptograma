@@ -326,7 +326,7 @@ private fun ItemCriptogramaAdmin(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "“${criptograma.fraseTraducao}”",
+                text = "“${criptograma.frase}”",
                 fontFamily = FontFamily.Monospace,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
@@ -380,7 +380,7 @@ fun TelaListaCriptogramasAdminPreview() {
             listaCriptogramas = listOf(
                 Criptograma(
                     id = 7,
-                    fraseTraducao = "O segredo para progredir é começar.",
+                    frase = "O segredo para progredir é começar.",
                     autor = "Mark Twain",
                     categoria = "Citações",
                     dificuldade = Dificuldade.DIFICIL,

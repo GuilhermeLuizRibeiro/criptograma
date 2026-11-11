@@ -12,7 +12,7 @@ data class TelaListaCriptogramasAdminUiState(
     val listaFiltrada: List<Criptograma>
         get() = listaCriptogramas.filter { item ->
             val bateBusca = busca.isBlank() ||
-                    item.fraseTraducao.contains(busca, ignoreCase = true) ||
+                    item.frase.contains(busca, ignoreCase = true) ||
                     item.autor.contains(busca, ignoreCase = true)
 
             val bateDificuldade = when (filtroSelecionado) {

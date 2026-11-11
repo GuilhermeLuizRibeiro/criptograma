@@ -76,8 +76,7 @@ fun TelaCriaCriptogramasAdmin(
     TelaCriaCriptogramasAdminContent(
         uiState = uiState,
         modifier = modifier,
-        onFraseTraducaoChange = viewModel::onFraseTraducaoChange,
-        onFraseOriginalChange = viewModel::onFraseOriginalChange,
+        onFraseChange = viewModel::onFraseChange,
         onAutorChange = viewModel::onAutorChange,
         onCategoriaChange = viewModel::onCategoriaSelecionadaChange,
         onDificuldadeChange = viewModel::onDificuldadeSelecionadaChange,
@@ -94,8 +93,7 @@ fun TelaCriaCriptogramasAdmin(
 fun TelaCriaCriptogramasAdminContent(
     uiState: TelaCriaCriptogramasAdminUiState,
     modifier: Modifier = Modifier,
-    onFraseTraducaoChange: (String) -> Unit = {},
-    onFraseOriginalChange: (String) -> Unit = {},
+    onFraseChange: (String) -> Unit = {},
     onAutorChange: (String) -> Unit = {},
     onCategoriaChange: (String) -> Unit = {},
     onDificuldadeChange: (Dificuldade) -> Unit = {},
@@ -164,8 +162,8 @@ fun TelaCriaCriptogramasAdminContent(
                             modifier = Modifier.padding(bottom = 4.dp)
                         )
                         OutlinedTextField(
-                            value = uiState.fraseTraducao,
-                            onValueChange = onFraseTraducaoChange,
+                            value = uiState.frase,
+                            onValueChange = onFraseChange,
                             placeholder = {
                                 Text(
                                     text = "Digite a tradução",
@@ -186,10 +184,10 @@ fun TelaCriaCriptogramasAdminContent(
                             maxLines = 4,
                             modifier = Modifier.fillMaxWidth()
                         )
-                        if (uiState.tentouSalvar && uiState.erros.fraseTraducao != null) {
+                        if (uiState.tentouSalvar && uiState.erros.frase != null) {
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
-                                text = uiState.erros.fraseTraducao ?: "Obrigatória para salvar.",
+                                text = uiState.erros.frase ?: "Obrigatória para salvar.",
                                 fontFamily = FontFamily.Monospace,
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold,
@@ -198,33 +196,7 @@ fun TelaCriaCriptogramasAdminContent(
                         }
                     }
 
-                    // Campo 2: Original (inglês)
-                    Column {
-                        Text(
-                            text = "Original (inglês)",
-                            fontFamily = FontFamily.Monospace,
-                            fontSize = 13.sp,
-                            color = CorTextoEscuro,
-                            modifier = Modifier.padding(bottom = 4.dp)
-                        )
-                        OutlinedTextField(
-                            value = uiState.fraseOriginal,
-                            onValueChange = onFraseOriginalChange,
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedContainerColor = CorInputFundo,
-                                unfocusedContainerColor = CorInputFundo,
-                                focusedBorderColor = CorBordaCard,
-                                unfocusedBorderColor = CorBordaCard,
-                                focusedTextColor = CorTextoEscuro,
-                                unfocusedTextColor = CorTextoEscuro
-                            ),
-                            minLines = 2,
-                            maxLines = 3,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    }
-
-                    // Campo 3: Autor com moldura de foto
+                    // Campo 2: Autor com moldura de foto
                     Column {
                         Text(
                             text = "Autor",
@@ -268,7 +240,7 @@ fun TelaCriaCriptogramasAdminContent(
                         }
                     }
 
-                    // Campo 4: Categoria (Dropdown)
+                    // Campo 3: Categoria (Dropdown)
                     Column {
                         Text(
                             text = "Categoria",
@@ -318,7 +290,7 @@ fun TelaCriaCriptogramasAdminContent(
                         }
                     }
 
-                    // Campo 5: Dificuldade (Botões Segmentados)
+                    // Campo 4: Dificuldade (Botões Segmentados)
                     Column {
                         Text(
                             text = "Dificuldade",
@@ -366,7 +338,7 @@ fun TelaCriaCriptogramasAdminContent(
 
                     Spacer(modifier = Modifier.height(4.dp))
 
-                    // Campo 6: Origem (Manual / API de citações)
+                    // Campo 5: Origem (Manual / API de citações)
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween,

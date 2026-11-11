@@ -29,8 +29,7 @@ class TelaCriaCriptogramasAdminViewModel(application: Application) : AndroidView
                 _uiState.update {
                     it.copy(
                         criptogramaEmEdicao = cripto,
-                        fraseTraducao = cripto.fraseTraducao,
-                        fraseOriginal = cripto.fraseOriginal ?: "",
+                        frase = cripto.frase,
                         autor = cripto.autor,
                         categoriaSelecionada = cripto.categoria,
                         dificuldadeSelecionada = cripto.dificuldade,
@@ -41,12 +40,8 @@ class TelaCriaCriptogramasAdminViewModel(application: Application) : AndroidView
         }
     }
 
-    fun onFraseTraducaoChange(novaFrase: String) {
-        _uiState.update { it.copy(fraseTraducao = novaFrase) }
-    }
-
-    fun onFraseOriginalChange(novaFrase: String) {
-        _uiState.update { it.copy(fraseOriginal = novaFrase) }
+    fun onFraseChange(novaFrase: String) {
+        _uiState.update { it.copy(frase = novaFrase) }
     }
 
     fun onAutorChange(novoAutor: String) {
@@ -92,8 +87,7 @@ class TelaCriaCriptogramasAdminViewModel(application: Application) : AndroidView
 
         return Criptograma(
             id = state.criptogramaEmEdicao?.id ?: 0,
-            fraseOriginal = state.fraseOriginal,
-            fraseTraducao = state.fraseTraducao,
+            frase = state.frase,
             autor = state.autor,
             categoria = state.categoriaSelecionada,
             dificuldade = state.dificuldadeSelecionada,

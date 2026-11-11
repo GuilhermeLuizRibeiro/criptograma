@@ -11,7 +11,7 @@ import com.example.myapplication.data.local.entity.Criptograma
 import com.example.myapplication.data.local.entity.Partida
 import com.example.myapplication.data.local.entity.Usuario
 
-@Database(entities = [Usuario::class, Partida::class, Criptograma::class], version = 1)
+@Database(entities = [Usuario::class, Partida::class, Criptograma::class], version = 2)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun usuarioDAO(): UsuarioDAO
     abstract fun partidaDAO(): PartidaDAO
@@ -22,20 +22,19 @@ abstract class AppDatabase : RoomDatabase() {
         @Volatile
         private var INSTANCE: AppDatabase? = null
 
-        fun getDatabase(context: Context): AppDatabase{
-
+        fun getDatabase(context: Context): AppDatabase {
             val tempInstance = INSTANCE
-
-            if(tempInstance != null){
+            if (tempInstance != null) {
                 return tempInstance
             } else {
-                synchronized(this){
-
+                synchronized(this) {
                     val instance = Room.databaseBuilder(
                         context.applicationContext,
                         AppDatabase::class.java,
                         "app_database"
-                    ).build()
+                    )
+                    .fallbackToDestructiveMigration(true)
+                    .build()
 
                     INSTANCE = instance
                     return instance

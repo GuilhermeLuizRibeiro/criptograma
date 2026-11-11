@@ -12,8 +12,7 @@ import com.example.myapplication.model.enums.Dificuldade
 data class Criptograma(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
-    val fraseOriginal: String? = null,
-    val fraseTraducao: String,
+    val frase: String,
     val autor: String,
     val categoria: String,
     val dificuldade: Dificuldade,
