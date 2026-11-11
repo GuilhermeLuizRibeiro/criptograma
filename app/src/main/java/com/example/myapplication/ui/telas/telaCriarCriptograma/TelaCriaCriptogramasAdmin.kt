@@ -74,8 +74,7 @@ fun TelaCriaCriptogramasAdmin(
         onDificuldadeChange = viewModel::onDificuldadeSelecionadaChange,
         onMenuExpandidoChange = viewModel::onMenuCategoriaExpandidoChange,
         onSalvarClick = {
-            val novoCriptograma = viewModel.criarCriptograma()
-            onSalvarClick(novoCriptograma)
+            viewModel.salvarCriptograma(onSucesso = onSalvarClick)
         },
         onCancelarClick = onCancelarClick
     )

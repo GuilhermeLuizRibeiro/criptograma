@@ -1,17 +1,39 @@
 package com.example.myapplication.ui.telas.telaCriarCriptograma
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.myapplication.data.local.database.AppDatabase
 import com.example.myapplication.data.local.entity.Criptograma
+import com.example.myapplication.data.repository.CriptogramaRepository
 import com.example.myapplication.model.enums.Dificuldade
+import java.util.UUID
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
-class TelaCriaCriptogramasAdminViewModel : ViewModel() {
+class TelaCriaCriptogramasAdminViewModel(application: Application) : AndroidViewModel(application) {
+
+    private val repository = CriptogramaRepository(AppDatabase.getDatabase(application).criptogramaDAO())
 
     private val _uiState = MutableStateFlow(TelaCriaCriptogramasAdminUiState())
     val uiState: StateFlow<TelaCriaCriptogramasAdminUiState> = _uiState.asStateFlow()
+
+    fun carregarCriptogramaParaEdicao(criptograma: Criptograma?) {
+        if (criptograma == null) return
+        _uiState.update {
+            it.copy(
+                criptogramaEmEdicao = criptograma,
+                fraseTraducao = criptograma.fraseTraducao,
+                fraseOriginal = criptograma.fraseOriginal ?: "",
+                autor = criptograma.autor,
+                categoriaSelecionada = criptograma.categoria,
+                dificuldadeSelecionada = criptograma.dificuldade
+            )
+        }
+    }
 
     fun onFraseTraducaoChange(novaFrase: String) {
         _uiState.update { it.copy(fraseTraducao = novaFrase) }
@@ -37,20 +59,27 @@ class TelaCriaCriptogramasAdminViewModel : ViewModel() {
         _uiState.update { it.copy(menuCategoriaExpandido = expandido) }
     }
 
-    fun onClickSalvar(): Boolean {
+    fun salvarCriptograma(onSucesso: (Criptograma) -> Unit) {
         _uiState.update { it.copy(tentouSalvar = true) }
-        return !_uiState.value.erros.temErros
+        if (_uiState.value.erros.temErros) return
+
+        viewModelScope.launch {
+            val cripto = criarCriptograma()
+            repository.salvar(cripto)
+            onSucesso(cripto)
+        }
     }
 
-    fun criarCriptograma(): Criptograma {
+    private fun criarCriptograma(): Criptograma {
         val state = _uiState.value
         return Criptograma(
+            id = state.criptogramaEmEdicao?.id ?: 0,
             fraseOriginal = state.fraseOriginal,
             fraseTraducao = state.fraseTraducao,
             autor = state.autor,
             categoria = state.categoriaSelecionada,
             dificuldade = state.dificuldadeSelecionada,
-            idExterno = "API"
+            idExterno = state.criptogramaEmEdicao?.idExterno ?: "API_${UUID.randomUUID().toString().take(8)}"
         )
     }
 }
