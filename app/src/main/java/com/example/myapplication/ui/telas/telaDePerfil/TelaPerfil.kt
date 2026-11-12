@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.myapplication.ui.componentes.NavegacaoRodapeAdmin
+import com.example.myapplication.ui.componentes.NavegacaoRodapeJogador
 import com.example.myapplication.ui.theme.CorBordaCard
 import com.example.myapplication.ui.theme.CorFundoCard
 import com.example.myapplication.ui.theme.CorFundoTela
@@ -75,7 +76,10 @@ fun TelaPerfilContent(
                     onItemClick = onItemNavegacaoClick
                 )
             } else {
-                // Aqui ficará o rodapé do Jogador quando for adicionado
+                NavegacaoRodapeJogador(
+                    itemSelecionado = uiState.itemNavegacaoSelecionado,
+                    onItemClick = onItemNavegacaoClick
+                )
             }
         },
         modifier = modifier
