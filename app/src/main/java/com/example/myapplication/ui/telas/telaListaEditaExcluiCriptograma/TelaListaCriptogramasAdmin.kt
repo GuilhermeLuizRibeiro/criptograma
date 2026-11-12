@@ -60,6 +60,7 @@ fun TelaListaCriptogramasAdmin(
     onNovoCasoClick: () -> Unit = {},
     onEditarClick: (Criptograma) -> Unit = {},
     onExcluirClick: (Criptograma) -> Unit = {},
+    onItemNavegacaoClick: (String) -> Unit = {},
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -68,7 +69,10 @@ fun TelaListaCriptogramasAdmin(
         modifier = modifier,
         onBuscaChange = viewModel::onBuscaChange,
         onFiltroChange = viewModel::onFiltroSelecionadoChange,
-        onItemNavegacaoChange = viewModel::onItemNavegacaoChange,
+        onItemNavegacaoChange = { item ->
+            viewModel.onItemNavegacaoChange(item)
+            onItemNavegacaoClick(item)
+        },
         onNovoCasoClick = onNovoCasoClick,
         onEditarClick = onEditarClick,
         onExcluirClick = { cripto ->
