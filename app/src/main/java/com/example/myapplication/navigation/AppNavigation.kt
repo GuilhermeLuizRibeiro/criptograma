@@ -8,6 +8,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.myapplication.ui.telas.telaCriarCriptograma.TelaCriaCriptogramasAdmin
 import com.example.myapplication.ui.telas.telaDeLogin.TelaLogin
+import com.example.myapplication.ui.telas.telaDePerfil.TelaPerfil
 import com.example.myapplication.ui.telas.telaListaEditaExcluiCriptograma.TelaListaCriptogramasAdmin
 
 @Composable
@@ -36,6 +37,28 @@ fun AppNavigation() {
                 },
                 onEditarClick = { cripto ->
                     navController.navigate("${Rotas.TELA_CRIA_ADMIN}?id=${cripto.id}")
+                },
+                onItemNavegacaoClick = { item ->
+                    if (item == "Perfil") {
+                        navController.navigate(Rotas.TELA_PERFIL)
+                    }
+                }
+            )
+        }
+
+        composable(Rotas.TELA_PERFIL) {
+            TelaPerfil(
+                onItemNavegacaoClick = { item ->
+                    if (item == "Painel") {
+                        navController.navigate(Rotas.TELA_LISTA_ADMIN) {
+                            popUpTo(Rotas.TELA_LISTA_ADMIN) { inclusive = true }
+                        }
+                    }
+                },
+                onSairClick = {
+                    navController.navigate(Rotas.TELA_LOGIN) {
+                        popUpTo(0) { inclusive = true }
+                    }
                 }
             )
         }

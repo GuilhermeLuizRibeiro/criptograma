@@ -60,6 +60,7 @@ fun TelaListaCriptogramasAdmin(
     onNovoCasoClick: () -> Unit = {},
     onEditarClick: (Criptograma) -> Unit = {},
     onExcluirClick: (Criptograma) -> Unit = {},
+    onItemNavegacaoClick: (String) -> Unit = {},
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -68,7 +69,10 @@ fun TelaListaCriptogramasAdmin(
         modifier = modifier,
         onBuscaChange = viewModel::onBuscaChange,
         onFiltroChange = viewModel::onFiltroSelecionadoChange,
-        onItemNavegacaoChange = viewModel::onItemNavegacaoChange,
+        onItemNavegacaoChange = { item ->
+            viewModel.onItemNavegacaoChange(item)
+            onItemNavegacaoClick(item)
+        },
         onNovoCasoClick = onNovoCasoClick,
         onEditarClick = onEditarClick,
         onExcluirClick = { cripto ->
@@ -326,7 +330,7 @@ private fun ItemCriptogramaAdmin(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "“${criptograma.fraseTraducao}”",
+                text = "“${criptograma.frase}”",
                 fontFamily = FontFamily.Monospace,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
@@ -380,7 +384,7 @@ fun TelaListaCriptogramasAdminPreview() {
             listaCriptogramas = listOf(
                 Criptograma(
                     id = 7,
-                    fraseTraducao = "O segredo para progredir é começar.",
+                    frase = "O segredo para progredir é começar.",
                     autor = "Mark Twain",
                     categoria = "Citações",
                     dificuldade = Dificuldade.DIFICIL,

@@ -5,8 +5,7 @@ import com.example.myapplication.model.ErrosFormCriptograma
 import com.example.myapplication.model.enums.Dificuldade
 
 data class TelaCriaCriptogramasAdminUiState(
-    val fraseTraducao: String = "",
-    val fraseOriginal: String = "",
+    val frase: String = "",
     val autor: String = "",
     val categoriaSelecionada: String = "Citações",
     val dificuldadeSelecionada: Dificuldade = Dificuldade.FACIL,
@@ -22,6 +21,6 @@ data class TelaCriaCriptogramasAdminUiState(
 
     val erros: ErrosFormCriptograma
         get() = ErrosFormCriptograma(
-            fraseTraducao = if (fraseTraducao.isBlank()) "Obrigatória para salvar." else null
+            frase = if (frase.isBlank()) "Obrigatória para salvar." else null
         )
 }
