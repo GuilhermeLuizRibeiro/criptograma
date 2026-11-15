@@ -31,4 +31,5 @@ class UsuarioRepository(private val dao: UsuarioDAO) {
         dao.inserir(novoUsuario)
         return dao.buscarPorEmail(emailDefault) ?: novoUsuario
     }
+    fun listarRanking(): List<Usuario> = dao.listarRanking()
 }

@@ -24,4 +24,7 @@ interface PartidaDAO {
 
     @Query("SELECT * FROM partidas ORDER BY id DESC")
     fun listarTodos(): Flow<List<Partida>>
+
+    @Query("SELECT * FROM partidas WHERE usuarioId = :usuarioId ORDER BY id DESC")
+    fun listarPorUsuario(usuarioId: Int): List<Partida>
 }

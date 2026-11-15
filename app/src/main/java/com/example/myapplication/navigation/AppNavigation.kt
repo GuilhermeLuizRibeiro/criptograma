@@ -6,6 +6,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.myapplication.ui.telas.inicio.TelaInicio
 import com.example.myapplication.ui.telas.telaCriarCriptograma.TelaCriaCriptogramasAdmin
 import com.example.myapplication.ui.telas.telaDeLogin.TelaLogin
 import com.example.myapplication.ui.telas.telaDePerfil.TelaPerfil
@@ -25,7 +26,17 @@ fun AppNavigation() {
                     navController.navigate(Rotas.TELA_LISTA_ADMIN)
                 },
                 onJogadorClick = {
-                    // Rota para o jogador
+                    navController.navigate(Rotas.TELA_INICIO)
+                }
+            )
+        }
+
+        composable(Rotas.TELA_INICIO) {
+            TelaInicio(
+                onItemNavegacaoClick = { item ->
+                    if (item == "Perfil") {
+                        navController.navigate(Rotas.TELA_PERFIL)
+                    }
                 }
             )
         }
