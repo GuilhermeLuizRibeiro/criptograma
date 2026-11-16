@@ -31,6 +31,7 @@ import com.example.myapplication.ui.theme.CorBordaCard
 import com.example.myapplication.ui.theme.CorBotaoRoxo
 import com.example.myapplication.ui.theme.CorFundoCard
 import com.example.myapplication.ui.theme.CorTextoEscuro
+import com.example.myapplication.ui.theme.CourierPrime
 
 @Composable
 fun NavegacaoRodapeJogador(
@@ -51,11 +52,11 @@ fun NavegacaoRodapeJogador(
                     strokeWidth = strokeWidth
                 )
             }
-            .navigationBarsPadding()
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
+                .navigationBarsPadding()
                 .padding(vertical = 10.dp),
             horizontalArrangement = Arrangement.SpaceAround,
             verticalAlignment = Alignment.CenterVertically
@@ -79,7 +80,7 @@ fun NavegacaoRodapeJogador(
 
                     Text(
                         text = titulo,
-                        fontFamily = FontFamily.Monospace,
+                        fontFamily = CourierPrime,
                         fontSize = 11.sp,
                         fontWeight = if (ativo) FontWeight.Bold else FontWeight.Normal,
                         color = if (ativo) CorBotaoRoxo else CorTextoEscuro

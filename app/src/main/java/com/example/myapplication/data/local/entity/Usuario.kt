@@ -14,5 +14,7 @@ data class Usuario (
     val id: Int = 0,
     val nome: String,
     val email: String,
-    val papel: Papel
+    val papel: Papel,
+    val casosResolvidos: Int = 0,
+    val pontos: Int = 0,
 )
