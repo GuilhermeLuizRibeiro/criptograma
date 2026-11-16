@@ -6,6 +6,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.myapplication.model.enums.Papel
+import com.example.myapplication.ui.telas.casos.TelaCasos
 import com.example.myapplication.ui.telas.inicio.TelaInicio
 import com.example.myapplication.ui.telas.telaCriarCriptograma.TelaCriaCriptogramasAdmin
 import com.example.myapplication.ui.telas.telaDeLogin.TelaLogin
@@ -36,6 +38,8 @@ fun AppNavigation() {
                 onItemNavegacaoClick = { item ->
                     if (item == "Perfil") {
                         navController.navigate(Rotas.TELA_PERFIL)
+                    } else if(item == "Casos") {
+                        navController.navigate(Rotas.TELA_CASOS)
                     }
                 }
             )
@@ -91,6 +95,19 @@ fun AppNavigation() {
                 },
                 onCancelarClick = {
                     navController.popBackStack()
+                }
+            )
+        }
+
+        composable(Rotas.TELA_CASOS) {
+            TelaCasos(
+                onItemNavegacaoClick = { item ->
+                    when (item) {
+                        "Início" -> navController.navigate(Rotas.TELA_INICIO) {
+                            popUpTo(Rotas.TELA_INICIO) { inclusive = true }
+                        }
+                        "Perfil" -> navController.navigate("${Rotas.TELA_PERFIL}/${Papel.USUARIO.name}")
+                    }
                 }
             )
         }
