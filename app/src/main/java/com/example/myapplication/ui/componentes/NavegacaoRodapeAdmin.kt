@@ -23,10 +23,10 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.myapplication.ui.theme.CourierPrime
 import com.example.myapplication.ui.theme.CorBordaCard
 import com.example.myapplication.ui.theme.CorBotaoRoxo
 import com.example.myapplication.ui.theme.CorFundoCard
@@ -51,11 +51,11 @@ fun NavegacaoRodapeAdmin(
                     strokeWidth = strokeWidth
                 )
             }
-            .navigationBarsPadding()
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
+                .navigationBarsPadding()
                 .padding(vertical = 10.dp),
             horizontalArrangement = Arrangement.SpaceAround,
             verticalAlignment = Alignment.CenterVertically
@@ -77,7 +77,7 @@ fun NavegacaoRodapeAdmin(
 
                     Text(
                         text = titulo,
-                        fontFamily = FontFamily.Monospace,
+                        fontFamily = CourierPrime,
                         fontSize = 11.sp,
                         fontWeight = if (ativo) FontWeight.Bold else FontWeight.Normal,
                         color = if (ativo) CorBotaoRoxo else CorTextoEscuro

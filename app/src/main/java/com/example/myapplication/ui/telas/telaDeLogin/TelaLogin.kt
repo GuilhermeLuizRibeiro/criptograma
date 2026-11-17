@@ -1,7 +1,6 @@
 package com.example.myapplication.ui.telas.telaDeLogin
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,16 +19,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.myapplication.ui.componentes.fundoQuadriculado
+import com.example.myapplication.ui.theme.CourierPrime
 import com.example.myapplication.ui.theme.CorBordaCard
-import com.example.myapplication.ui.theme.CorBotaoRoxo
-import com.example.myapplication.ui.theme.CorFundoCard
-import com.example.myapplication.ui.theme.CorFundoTela
+import com.example.myapplication.ui.theme.acao
+import com.example.myapplication.ui.theme.ficha
+import com.example.myapplication.ui.theme.sobreAcao
 
 @Composable
 fun TelaLogin(
@@ -60,17 +60,19 @@ fun TelaLoginContent(
 ) {
     Scaffold(
         modifier = modifier
+            .fillMaxSize()
+            .fundoQuadriculado(),
+        containerColor = Color.Transparent
     ) { paddingValues ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
-                .background(CorFundoTela),
+                .padding(paddingValues),
             contentAlignment = Alignment.Center
         ) {
             Card(
                 colors = CardDefaults.cardColors(
-                    containerColor = CorFundoCard
+                    containerColor = ficha
                 ),
                 border = BorderStroke(2.dp, CorBordaCard),
                 shape = RoundedCornerShape(12.dp),
@@ -88,8 +90,8 @@ fun TelaLoginContent(
                     Button(
                         onClick = onAdminClick,
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = CorBotaoRoxo,
-                            contentColor = Color.White
+                            containerColor = acao,
+                            contentColor = sobreAcao
                         ),
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier
@@ -98,7 +100,7 @@ fun TelaLoginContent(
                     ) {
                         Text(
                             text = "Admin",
-                            fontFamily = FontFamily.Monospace,
+                            fontFamily = CourierPrime,
                             fontWeight = FontWeight.Bold,
                             fontSize = 18.sp
                         )
@@ -107,8 +109,8 @@ fun TelaLoginContent(
                     Button(
                         onClick = onJogadorClick,
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = CorBotaoRoxo,
-                            contentColor = Color.White
+                            containerColor = acao,
+                            contentColor = sobreAcao
                         ),
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier
@@ -117,7 +119,7 @@ fun TelaLoginContent(
                     ) {
                         Text(
                             text = "Jogador",
-                            fontFamily = FontFamily.Monospace,
+                            fontFamily = CourierPrime,
                             fontWeight = FontWeight.Bold,
                             fontSize = 18.sp
                         )

@@ -27,7 +27,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -36,11 +35,12 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.myapplication.model.enums.Papel
 import com.example.myapplication.ui.componentes.NavegacaoRodapeAdmin
 import com.example.myapplication.ui.componentes.NavegacaoRodapeJogador
+import com.example.myapplication.ui.componentes.fundoQuadriculado
+import com.example.myapplication.ui.theme.CourierPrime
 import com.example.myapplication.ui.theme.CorBordaCard
-import com.example.myapplication.ui.theme.CorFundoCard
-import com.example.myapplication.ui.theme.CorFundoTela
-import com.example.myapplication.ui.theme.CorInputFundo
-import com.example.myapplication.ui.theme.CorTextoEscuro
+import com.example.myapplication.ui.theme.ficha
+import com.example.myapplication.ui.theme.ficha2
+import com.example.myapplication.ui.theme.tinta
 
 @Composable
 fun TelaPerfil(
@@ -75,7 +75,10 @@ fun TelaPerfilContent(
     onSairClick: () -> Unit = {},
 ) {
     Scaffold(
-        containerColor = CorFundoTela,
+        modifier = modifier
+            .fillMaxSize()
+            .fundoQuadriculado(),
+        containerColor = Color.Transparent,
         bottomBar = {
             if (uiState.ehAdmin) {
                 NavegacaoRodapeAdmin(
@@ -88,8 +91,7 @@ fun TelaPerfilContent(
                     onItemClick = onItemNavegacaoClick
                 )
             }
-        },
-        modifier = modifier
+        }
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -100,16 +102,16 @@ fun TelaPerfilContent(
             // Título Topo "Perfil"
             Text(
                 text = "Perfil",
-                fontFamily = FontFamily.Monospace,
+                fontFamily = CourierPrime,
                 fontWeight = FontWeight.Bold,
                 fontSize = 22.sp,
-                color = CorTextoEscuro,
+                color = tinta,
                 modifier = Modifier.padding(bottom = 16.dp)
             )
 
             // Card com informações do usuário
             Card(
-                colors = CardDefaults.cardColors(containerColor = CorFundoCard),
+                colors = CardDefaults.cardColors(containerColor = ficha),
                 border = BorderStroke(2.dp, CorBordaCard),
                 shape = RoundedCornerShape(8.dp),
                 modifier = Modifier.fillMaxWidth()
@@ -123,7 +125,7 @@ fun TelaPerfilContent(
                 ) {
                     // Moldura de foto
                     Card(
-                        colors = CardDefaults.cardColors(containerColor = CorInputFundo),
+                        colors = CardDefaults.cardColors(containerColor = ficha2),
                         border = BorderStroke(1.dp, CorBordaCard),
                         shape = RoundedCornerShape(4.dp),
                         modifier = Modifier.size(width = 62.dp, height = 70.dp)
@@ -132,7 +134,7 @@ fun TelaPerfilContent(
                             modifier = Modifier.fillMaxSize(),
                             contentAlignment = Alignment.Center
                         ) {
-                            IconeAvatarPerfil(tint = CorTextoEscuro)
+                            IconeAvatarPerfil(tint = tinta)
                         }
                     }
 
@@ -148,16 +150,16 @@ fun TelaPerfilContent(
                         ) {
                             Text(
                                 text = "Nome",
-                                fontFamily = FontFamily.Monospace,
+                                fontFamily = CourierPrime,
                                 fontSize = 13.sp,
-                                color = CorTextoEscuro
+                                color = tinta
                             )
                             Text(
                                 text = uiState.nomeExibicao,
-                                fontFamily = FontFamily.Monospace,
+                                fontFamily = CourierPrime,
                                 fontSize = 13.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = CorTextoEscuro
+                                color = tinta
                             )
                         }
 
@@ -168,16 +170,16 @@ fun TelaPerfilContent(
                         ) {
                             Text(
                                 text = "E-mail",
-                                fontFamily = FontFamily.Monospace,
+                                fontFamily = CourierPrime,
                                 fontSize = 13.sp,
-                                color = CorTextoEscuro
+                                color = tinta
                             )
                             Text(
                                 text = uiState.emailExibicao,
-                                fontFamily = FontFamily.Monospace,
+                                fontFamily = CourierPrime,
                                 fontSize = 13.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = CorTextoEscuro
+                                color = tinta
                             )
                         }
                     }
@@ -188,7 +190,7 @@ fun TelaPerfilContent(
 
             // Botão "Sair" (Logout)
             Card(
-                colors = CardDefaults.cardColors(containerColor = CorInputFundo),
+                colors = CardDefaults.cardColors(containerColor = ficha2),
                 border = BorderStroke(1.dp, CorBordaCard),
                 shape = RoundedCornerShape(4.dp),
                 modifier = Modifier
@@ -202,10 +204,10 @@ fun TelaPerfilContent(
                 ) {
                     Text(
                         text = "Sair",
-                        fontFamily = FontFamily.Monospace,
+                        fontFamily = CourierPrime,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Medium,
-                        color = CorTextoEscuro
+                        color = tinta
                     )
                 }
             }

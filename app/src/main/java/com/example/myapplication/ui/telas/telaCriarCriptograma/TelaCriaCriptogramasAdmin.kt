@@ -38,7 +38,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
@@ -47,15 +46,17 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.myapplication.data.local.entity.Criptograma
 import com.example.myapplication.model.enums.Dificuldade
+import com.example.myapplication.ui.componentes.fundoQuadriculado
+import com.example.myapplication.ui.theme.CourierPrime
 import com.example.myapplication.ui.theme.CorBadgeEscuro
 import com.example.myapplication.ui.theme.CorBordaCard
-import com.example.myapplication.ui.theme.CorBotaoRoxo
-import com.example.myapplication.ui.theme.CorFundoCard
-import com.example.myapplication.ui.theme.CorFundoTela
-import com.example.myapplication.ui.theme.CorInputFundo
-import com.example.myapplication.ui.theme.CorTextoEscuro
 import com.example.myapplication.ui.theme.CorTextoSecundario
 import com.example.myapplication.ui.theme.CorTextoVermelho
+import com.example.myapplication.ui.theme.acao
+import com.example.myapplication.ui.theme.ficha
+import com.example.myapplication.ui.theme.ficha2
+import com.example.myapplication.ui.theme.sobreAcao
+import com.example.myapplication.ui.theme.tinta
 
 @Composable
 fun TelaCriaCriptogramasAdmin(
@@ -103,8 +104,10 @@ fun TelaCriaCriptogramasAdminContent(
     onCancelarClick: () -> Unit = {},
 ) {
     Scaffold(
-        containerColor = CorFundoTela,
         modifier = modifier
+            .fillMaxSize()
+            .fundoQuadriculado(),
+        containerColor = Color.Transparent
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -122,23 +125,23 @@ fun TelaCriaCriptogramasAdminContent(
             ) {
                 Text(
                     text = if (uiState.editando) "Editar caso" else "Novo caso",
-                    fontFamily = FontFamily.Monospace,
+                    fontFamily = CourierPrime,
                     fontWeight = FontWeight.Bold,
                     fontSize = 22.sp,
-                    color = CorTextoEscuro
+                    color = tinta
                 )
                 Text(
                     text = "Cancelar",
-                    fontFamily = FontFamily.Monospace,
+                    fontFamily = CourierPrime,
                     fontSize = 15.sp,
-                    color = CorTextoEscuro,
+                    color = tinta,
                     modifier = Modifier.clickable { onCancelarClick() }
                 )
             }
 
             // Card Formulário Principal
             Card(
-                colors = CardDefaults.cardColors(containerColor = CorFundoCard),
+                colors = CardDefaults.cardColors(containerColor = ficha),
                 border = BorderStroke(2.dp, CorBordaCard),
                 shape = RoundedCornerShape(8.dp),
                 modifier = Modifier
@@ -152,13 +155,13 @@ fun TelaCriaCriptogramasAdminContent(
                         .padding(14.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    // Campo 1: Frase em português (tradução)
+                    // Campo 1: Frase em português
                     Column {
                         Text(
                             text = "Frase em português (a que o jogador decifra)",
-                            fontFamily = FontFamily.Monospace,
+                            fontFamily = CourierPrime,
                             fontSize = 13.sp,
-                            color = CorTextoEscuro,
+                            color = tinta,
                             modifier = Modifier.padding(bottom = 4.dp)
                         )
                         OutlinedTextField(
@@ -167,18 +170,18 @@ fun TelaCriaCriptogramasAdminContent(
                             placeholder = {
                                 Text(
                                     text = "Digite a tradução",
-                                    fontFamily = FontFamily.Monospace,
+                                    fontFamily = CourierPrime,
                                     fontSize = 14.sp,
                                     color = CorTextoSecundario
                                 )
                             },
                             colors = OutlinedTextFieldDefaults.colors(
-                                focusedContainerColor = CorInputFundo,
-                                unfocusedContainerColor = CorInputFundo,
-                                focusedBorderColor = CorBordaCard,
-                                unfocusedBorderColor = CorBordaCard,
-                                focusedTextColor = CorTextoEscuro,
-                                unfocusedTextColor = CorTextoEscuro
+                                focusedContainerColor = ficha2,
+                                unfocusedContainerColor = ficha2,
+                                focusedBorderColor = if (uiState.tentouSalvar && uiState.erros.frase != null) Color.Red else Color(0xFF800020),
+                                unfocusedBorderColor = if (uiState.tentouSalvar && uiState.erros.frase != null) Color.Red else Color(0xFF800020),
+                                focusedTextColor = tinta,
+                                unfocusedTextColor = tinta
                             ),
                             minLines = 3,
                             maxLines = 4,
@@ -188,7 +191,7 @@ fun TelaCriaCriptogramasAdminContent(
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
                                 text = uiState.erros.frase ?: "Obrigatória para salvar.",
-                                fontFamily = FontFamily.Monospace,
+                                fontFamily = CourierPrime,
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = CorTextoVermelho
@@ -200,9 +203,9 @@ fun TelaCriaCriptogramasAdminContent(
                     Column {
                         Text(
                             text = "Autor",
-                            fontFamily = FontFamily.Monospace,
+                            fontFamily = CourierPrime,
                             fontSize = 13.sp,
-                            color = CorTextoEscuro,
+                            color = tinta,
                             modifier = Modifier.padding(bottom = 4.dp)
                         )
                         Row(
@@ -210,7 +213,7 @@ fun TelaCriaCriptogramasAdminContent(
                             horizontalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
                             Card(
-                                colors = CardDefaults.cardColors(containerColor = CorInputFundo),
+                                colors = CardDefaults.cardColors(containerColor = ficha2),
                                 border = BorderStroke(1.dp, CorBordaCard),
                                 shape = RoundedCornerShape(4.dp),
                                 modifier = Modifier.size(width = 52.dp, height = 58.dp)
@@ -219,7 +222,7 @@ fun TelaCriaCriptogramasAdminContent(
                                     modifier = Modifier.fillMaxSize(),
                                     contentAlignment = Alignment.Center
                                 ) {
-                                    IconeAvatarAutor(tint = CorTextoEscuro)
+                                    IconeAvatarAutor(tint = tinta)
                                 }
                             }
 
@@ -227,12 +230,12 @@ fun TelaCriaCriptogramasAdminContent(
                                 value = uiState.autor,
                                 onValueChange = onAutorChange,
                                 colors = OutlinedTextFieldDefaults.colors(
-                                    focusedContainerColor = CorInputFundo,
-                                    unfocusedContainerColor = CorInputFundo,
+                                    focusedContainerColor = ficha2,
+                                    unfocusedContainerColor = ficha2,
                                     focusedBorderColor = CorBordaCard,
                                     unfocusedBorderColor = CorBordaCard,
-                                    focusedTextColor = CorTextoEscuro,
-                                    unfocusedTextColor = CorTextoEscuro
+                                    focusedTextColor = tinta,
+                                    unfocusedTextColor = tinta
                                 ),
                                 singleLine = true,
                                 modifier = Modifier.weight(1f)
@@ -244,16 +247,16 @@ fun TelaCriaCriptogramasAdminContent(
                     Column {
                         Text(
                             text = "Categoria",
-                            fontFamily = FontFamily.Monospace,
+                            fontFamily = CourierPrime,
                             fontSize = 13.sp,
-                            color = CorTextoEscuro,
+                            color = tinta,
                             modifier = Modifier.padding(bottom = 4.dp)
                         )
                         Box(modifier = Modifier.fillMaxWidth()) {
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .background(CorInputFundo, RoundedCornerShape(4.dp))
+                                    .background(ficha2, RoundedCornerShape(4.dp))
                                     .border(1.dp, CorBordaCard, RoundedCornerShape(4.dp))
                                     .clickable { onMenuExpandidoChange(true) }
                                     .padding(horizontal = 12.dp, vertical = 14.dp),
@@ -262,25 +265,25 @@ fun TelaCriaCriptogramasAdminContent(
                             ) {
                                 Text(
                                     text = uiState.categoriaSelecionada,
-                                    fontFamily = FontFamily.Monospace,
+                                    fontFamily = CourierPrime,
                                     fontSize = 14.sp,
-                                    color = CorTextoEscuro
+                                    color = tinta
                                 )
-                                IconeSetaBaixo(tint = CorTextoEscuro)
+                                IconeSetaBaixo(tint = tinta)
                             }
 
                             DropdownMenu(
                                 expanded = uiState.menuCategoriaExpandido,
                                 onDismissRequest = { onMenuExpandidoChange(false) },
-                                modifier = Modifier.background(CorInputFundo)
+                                modifier = Modifier.background(ficha2)
                             ) {
                                 uiState.categoriasDisponiveis.forEach { cat ->
                                     DropdownMenuItem(
                                         text = {
                                             Text(
                                                 text = cat,
-                                                fontFamily = FontFamily.Monospace,
-                                                color = CorTextoEscuro
+                                                fontFamily = CourierPrime,
+                                                color = tinta
                                             )
                                         },
                                         onClick = { onCategoriaChange(cat) }
@@ -294,9 +297,9 @@ fun TelaCriaCriptogramasAdminContent(
                     Column {
                         Text(
                             text = "Dificuldade",
-                            fontFamily = FontFamily.Monospace,
+                            fontFamily = CourierPrime,
                             fontSize = 13.sp,
-                            color = CorTextoEscuro,
+                            color = tinta,
                             modifier = Modifier.padding(bottom = 4.dp)
                         )
                         Row(
@@ -315,7 +318,7 @@ fun TelaCriaCriptogramasAdminContent(
                                 Box(
                                     modifier = Modifier
                                         .weight(1f)
-                                        .background(if (selecionado) CorBadgeEscuro else CorInputFundo)
+                                        .background(if (selecionado) CorBadgeEscuro else ficha2)
                                         .clickable { onDificuldadeChange(dif) }
                                         .border(
                                             width = if (index < dificuldades.size - 1) 1.dp else 0.dp,
@@ -326,10 +329,10 @@ fun TelaCriaCriptogramasAdminContent(
                                 ) {
                                     Text(
                                         text = label,
-                                        fontFamily = FontFamily.Monospace,
+                                        fontFamily = CourierPrime,
                                         fontWeight = if (selecionado) FontWeight.Bold else FontWeight.Normal,
                                         fontSize = 14.sp,
-                                        color = if (selecionado) Color.White else CorTextoEscuro
+                                        color = if (selecionado) Color.White else tinta
                                     )
                                 }
                             }
@@ -346,16 +349,16 @@ fun TelaCriaCriptogramasAdminContent(
                     ) {
                         Text(
                             text = "Origem: ${uiState.origemSelecionada}",
-                            fontFamily = FontFamily.Monospace,
+                            fontFamily = CourierPrime,
                             fontSize = 12.sp,
                             color = CorTextoSecundario
                         )
                         Text(
                             text = if (uiState.origemSelecionada == "Manual") "Mudar p/ API" else "Mudar p/ Manual",
-                            fontFamily = FontFamily.Monospace,
+                            fontFamily = CourierPrime,
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
-                            color = CorTextoEscuro,
+                            color = tinta,
                             textDecoration = TextDecoration.Underline,
                             modifier = Modifier.clickable {
                                 val nova = if (uiState.origemSelecionada == "Manual") "API de citações" else "Manual"
@@ -372,8 +375,8 @@ fun TelaCriaCriptogramasAdminContent(
             Button(
                 onClick = onSalvarClick,
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = CorBotaoRoxo,
-                    contentColor = Color.White
+                    containerColor = acao,
+                    contentColor = sobreAcao
                 ),
                 shape = RoundedCornerShape(8.dp),
                 modifier = Modifier
@@ -382,7 +385,7 @@ fun TelaCriaCriptogramasAdminContent(
             ) {
                 Text(
                     text = "Salvar caso",
-                    fontFamily = FontFamily.Monospace,
+                    fontFamily = CourierPrime,
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp
                 )
