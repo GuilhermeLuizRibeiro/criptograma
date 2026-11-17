@@ -19,6 +19,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -32,6 +33,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.myapplication.model.enums.Papel
 import com.example.myapplication.ui.componentes.NavegacaoRodapeAdmin
 import com.example.myapplication.ui.componentes.NavegacaoRodapeJogador
 import com.example.myapplication.ui.theme.CorBordaCard
@@ -43,10 +45,15 @@ import com.example.myapplication.ui.theme.CorTextoEscuro
 @Composable
 fun TelaPerfil(
     modifier: Modifier = Modifier,
+    papel: Papel = Papel.ADMIN,
     viewModel: TelaPerfilViewModel = viewModel(),
     onItemNavegacaoClick: (String) -> Unit = {},
     onSairClick: () -> Unit = {},
 ) {
+    LaunchedEffect(papel) {
+        viewModel.carregarUsuario(papel)
+    }
+
     val uiState by viewModel.uiState.collectAsState()
 
     TelaPerfilContent(

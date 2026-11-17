@@ -19,11 +19,7 @@ class TelaPerfilViewModel(application: Application) : AndroidViewModel(applicati
     private val _uiState = MutableStateFlow(TelaPerfilUiState())
     val uiState: StateFlow<TelaPerfilUiState> = _uiState.asStateFlow()
 
-    init {
-        carregarUsuario(Papel.ADMIN)
-    }
-
-    fun carregarUsuario(papel: Papel = Papel.ADMIN) {
+    fun carregarUsuario(papel: Papel) {
         viewModelScope.launch {
             val user = repository.garantirUsuarioDefault(papel)
             _uiState.update {
