@@ -372,10 +372,10 @@ fun TelaCriaCriptogramasAdminContent(
                         }
                     }
 
-                    // Campo 1: Frase em português
+                    // Campo 1: Frase
                     Column {
                         Text(
-                            text = "Frase em português (a que o jogador decifra)",
+                            text = "Frase (a que o jogador decifra)",
                             fontFamily = CourierPrime,
                             fontSize = 13.sp,
                             color = tinta,
