@@ -22,6 +22,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.OutlinedTextField
@@ -38,32 +39,43 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.myapplication.data.local.database.AppDatabase
 import com.example.myapplication.data.local.entity.Criptograma
+import com.example.myapplication.data.remote.model.CitacaoDto
+import com.example.myapplication.data.repository.CriptogramaRepository
+import com.example.myapplication.data.repository.EstoicaRepository
 import com.example.myapplication.model.enums.Dificuldade
+import com.example.myapplication.ui.componentes.fundoQuadriculado
+import com.example.myapplication.ui.theme.CourierPrime
 import com.example.myapplication.ui.theme.CorBadgeEscuro
 import com.example.myapplication.ui.theme.CorBordaCard
-import com.example.myapplication.ui.theme.CorBotaoRoxo
-import com.example.myapplication.ui.theme.CorFundoCard
-import com.example.myapplication.ui.theme.CorFundoTela
-import com.example.myapplication.ui.theme.CorInputFundo
-import com.example.myapplication.ui.theme.CorTextoEscuro
 import com.example.myapplication.ui.theme.CorTextoSecundario
 import com.example.myapplication.ui.theme.CorTextoVermelho
+import com.example.myapplication.ui.theme.acao
+import com.example.myapplication.ui.theme.ficha
+import com.example.myapplication.ui.theme.ficha2
+import com.example.myapplication.ui.theme.sobreAcao
+import com.example.myapplication.ui.theme.tinta
 
 @Composable
 fun TelaCriaCriptogramasAdmin(
     modifier: Modifier = Modifier,
     criptogramaId: Int? = null,
-    viewModel: TelaCriaCriptogramasAdminViewModel = viewModel(),
     onSalvarClick: (Criptograma) -> Unit = {},
     onCancelarClick: () -> Unit = {},
+    viewModel: TelaCriaCriptogramasAdminViewModel = viewModel(
+        factory = TelaCriaCriptogramasAdminViewModelFactory(
+            CriptogramaRepository(AppDatabase.getDatabase(LocalContext.current).criptogramaDAO()),
+            EstoicaRepository()
+        )
+    ),
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -81,6 +93,9 @@ fun TelaCriaCriptogramasAdmin(
         onCategoriaChange = viewModel::onCategoriaSelecionadaChange,
         onDificuldadeChange = viewModel::onDificuldadeSelecionadaChange,
         onOrigemChange = viewModel::onOrigemSelecionadaChange,
+        onTermoBuscaApiChange = viewModel::onTermoBuscaApiChange,
+        onBuscarApiClick = viewModel::buscarCitacoesNaApi,
+        onSelecionarCitacaoApi = viewModel::selecionarCitacaoApi,
         onMenuExpandidoChange = viewModel::onMenuCategoriaExpandidoChange,
         onSalvarClick = {
             viewModel.salvarCriptograma(onSucesso = onSalvarClick)
@@ -98,13 +113,18 @@ fun TelaCriaCriptogramasAdminContent(
     onCategoriaChange: (String) -> Unit = {},
     onDificuldadeChange: (Dificuldade) -> Unit = {},
     onOrigemChange: (String) -> Unit = {},
+    onTermoBuscaApiChange: (String) -> Unit = {},
+    onBuscarApiClick: () -> Unit = {},
+    onSelecionarCitacaoApi: (CitacaoDto) -> Unit = {},
     onMenuExpandidoChange: (Boolean) -> Unit = {},
     onSalvarClick: () -> Unit = {},
     onCancelarClick: () -> Unit = {},
 ) {
     Scaffold(
-        containerColor = CorFundoTela,
         modifier = modifier
+            .fillMaxSize()
+            .fundoQuadriculado(),
+        containerColor = Color.Transparent
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -122,23 +142,23 @@ fun TelaCriaCriptogramasAdminContent(
             ) {
                 Text(
                     text = if (uiState.editando) "Editar caso" else "Novo caso",
-                    fontFamily = FontFamily.Monospace,
+                    fontFamily = CourierPrime,
                     fontWeight = FontWeight.Bold,
                     fontSize = 22.sp,
-                    color = CorTextoEscuro
+                    color = tinta
                 )
                 Text(
                     text = "Cancelar",
-                    fontFamily = FontFamily.Monospace,
+                    fontFamily = CourierPrime,
                     fontSize = 15.sp,
-                    color = CorTextoEscuro,
+                    color = tinta,
                     modifier = Modifier.clickable { onCancelarClick() }
                 )
             }
 
             // Card Formulário Principal
             Card(
-                colors = CardDefaults.cardColors(containerColor = CorFundoCard),
+                colors = CardDefaults.cardColors(containerColor = ficha),
                 border = BorderStroke(2.dp, CorBordaCard),
                 shape = RoundedCornerShape(8.dp),
                 modifier = Modifier
@@ -152,13 +172,213 @@ fun TelaCriaCriptogramasAdminContent(
                         .padding(14.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    // Campo 1: Frase em português (tradução)
+                    // SELETOR NO TOPO: Origem (Manual x API de citações)
                     Column {
                         Text(
-                            text = "Frase em português (a que o jogador decifra)",
-                            fontFamily = FontFamily.Monospace,
+                            text = "Modo de cadastro",
+                            fontFamily = CourierPrime,
                             fontSize = 13.sp,
-                            color = CorTextoEscuro,
+                            fontWeight = FontWeight.Bold,
+                            color = tinta,
+                            modifier = Modifier.padding(bottom = 4.dp)
+                        )
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .border(1.dp, CorBordaCard, RoundedCornerShape(4.dp))
+                        ) {
+                            uiState.origensDisponiveis.forEachIndexed { index, origem ->
+                                val selecionado = origem == uiState.origemSelecionada
+                                Box(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .background(if (selecionado) CorBadgeEscuro else ficha2)
+                                        .clickable { onOrigemChange(origem) }
+                                        .border(
+                                            width = if (index < uiState.origensDisponiveis.size - 1) 1.dp else 0.dp,
+                                            color = CorBordaCard
+                                        )
+                                        .padding(vertical = 10.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = origem,
+                                        fontFamily = CourierPrime,
+                                        fontWeight = if (selecionado) FontWeight.Bold else FontWeight.Normal,
+                                        fontSize = 13.sp,
+                                        color = if (selecionado) Color.White else tinta
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    // SEÇÃO API: Busca na API quando origem for "API de citações"
+                    if (uiState.origemSelecionada == "API de citações") {
+                        Card(
+                            colors = CardDefaults.cardColors(containerColor = ficha2),
+                            border = BorderStroke(1.dp, CorBordaCard),
+                            shape = RoundedCornerShape(6.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(10.dp),
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Text(
+                                    text = "Buscar citação na Web (API de Frases Estoicas)",
+                                    fontFamily = CourierPrime,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 13.sp,
+                                    color = tinta
+                                )
+
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    OutlinedTextField(
+                                        value = uiState.termoBuscaApi,
+                                        onValueChange = onTermoBuscaApiChange,
+                                        placeholder = {
+                                            Text(
+                                                text = "Ex: virtude, Sêneca...",
+                                                fontFamily = CourierPrime,
+                                                fontSize = 13.sp,
+                                                color = CorTextoSecundario
+                                            )
+                                        },
+                                        colors = OutlinedTextFieldDefaults.colors(
+                                            focusedContainerColor = Color.White,
+                                            unfocusedContainerColor = Color.White,
+                                            focusedBorderColor = CorBordaCard,
+                                            unfocusedBorderColor = CorBordaCard,
+                                            focusedTextColor = tinta,
+                                            unfocusedTextColor = tinta
+                                        ),
+                                        singleLine = true,
+                                        modifier = Modifier.weight(1f)
+                                    )
+
+                                    Button(
+                                        onClick = onBuscarApiClick,
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = acao,
+                                            contentColor = sobreAcao
+                                        ),
+                                        shape = RoundedCornerShape(4.dp),
+                                        modifier = Modifier.height(52.dp)
+                                    ) {
+                                        Text(
+                                            text = "Buscar",
+                                            fontFamily = CourierPrime,
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 13.sp
+                                        )
+                                    }
+                                }
+
+                                if (uiState.buscandoApi) {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                        modifier = Modifier.padding(vertical = 4.dp)
+                                    ) {
+                                        CircularProgressIndicator(
+                                            color = acao,
+                                            modifier = Modifier.size(18.dp),
+                                            strokeWidth = 2.dp
+                                        )
+                                        Text(
+                                            text = "Consultando API de citações...",
+                                            fontFamily = CourierPrime,
+                                            fontSize = 12.sp,
+                                            color = CorTextoSecundario
+                                        )
+                                    }
+                                }
+
+                                if (uiState.mensagemErroApi != null) {
+                                    Text(
+                                        text = uiState.mensagemErroApi,
+                                        fontFamily = CourierPrime,
+                                        fontSize = 12.sp,
+                                        color = CorTextoVermelho
+                                    )
+                                }
+
+                                // Lista de citações retornadas da API
+                                if (uiState.resultadoCitacoesApi.isNotEmpty()) {
+                                    Text(
+                                        text = "Clique em uma citação para usá-la no formulário:",
+                                        fontFamily = CourierPrime,
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = tinta,
+                                        modifier = Modifier.padding(top = 4.dp)
+                                    )
+
+                                    uiState.resultadoCitacoesApi.forEach { citacao ->
+                                        Card(
+                                            colors = CardDefaults.cardColors(containerColor = Color.White),
+                                            border = BorderStroke(1.dp, CorBordaCard),
+                                            shape = RoundedCornerShape(4.dp),
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .clickable { onSelecionarCitacaoApi(citacao) }
+                                                .padding(vertical = 2.dp)
+                                        ) {
+                                            Column(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .padding(8.dp)
+                                            ) {
+                                                Text(
+                                                    text = "“${citacao.texto ?: ""}”",
+                                                    fontFamily = CourierPrime,
+                                                    fontSize = 13.sp,
+                                                    color = tinta
+                                                )
+                                                Spacer(modifier = Modifier.height(2.dp))
+                                                Row(
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                                    verticalAlignment = Alignment.CenterVertically
+                                                ) {
+                                                    Text(
+                                                        text = "— ${citacao.autor ?: "Desconhecido"}",
+                                                        fontFamily = CourierPrime,
+                                                        fontSize = 11.sp,
+                                                        fontWeight = FontWeight.Bold,
+                                                        color = CorTextoSecundario
+                                                    )
+                                                    Text(
+                                                        text = "Usar esta citação",
+                                                        fontFamily = CourierPrime,
+                                                        fontSize = 11.sp,
+                                                        color = acao,
+                                                        fontWeight = FontWeight.Bold,
+                                                        textDecoration = TextDecoration.Underline
+                                                    )
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // Campo 1: Frase
+                    Column {
+                        Text(
+                            text = "Frase (a que o jogador decifra)",
+                            fontFamily = CourierPrime,
+                            fontSize = 13.sp,
+                            color = tinta,
                             modifier = Modifier.padding(bottom = 4.dp)
                         )
                         OutlinedTextField(
@@ -166,19 +386,19 @@ fun TelaCriaCriptogramasAdminContent(
                             onValueChange = onFraseChange,
                             placeholder = {
                                 Text(
-                                    text = "Digite a tradução",
-                                    fontFamily = FontFamily.Monospace,
+                                    text = "Digite ou selecione uma citação acima",
+                                    fontFamily = CourierPrime,
                                     fontSize = 14.sp,
                                     color = CorTextoSecundario
                                 )
                             },
                             colors = OutlinedTextFieldDefaults.colors(
-                                focusedContainerColor = CorInputFundo,
-                                unfocusedContainerColor = CorInputFundo,
-                                focusedBorderColor = CorBordaCard,
-                                unfocusedBorderColor = CorBordaCard,
-                                focusedTextColor = CorTextoEscuro,
-                                unfocusedTextColor = CorTextoEscuro
+                                focusedContainerColor = ficha2,
+                                unfocusedContainerColor = ficha2,
+                                focusedBorderColor = if (uiState.tentouSalvar && uiState.erros.frase != null) Color.Red else Color(0xFF800020),
+                                unfocusedBorderColor = if (uiState.tentouSalvar && uiState.erros.frase != null) Color.Red else Color(0xFF800020),
+                                focusedTextColor = tinta,
+                                unfocusedTextColor = tinta
                             ),
                             minLines = 3,
                             maxLines = 4,
@@ -188,7 +408,7 @@ fun TelaCriaCriptogramasAdminContent(
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
                                 text = uiState.erros.frase ?: "Obrigatória para salvar.",
-                                fontFamily = FontFamily.Monospace,
+                                fontFamily = CourierPrime,
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = CorTextoVermelho
@@ -200,9 +420,9 @@ fun TelaCriaCriptogramasAdminContent(
                     Column {
                         Text(
                             text = "Autor",
-                            fontFamily = FontFamily.Monospace,
+                            fontFamily = CourierPrime,
                             fontSize = 13.sp,
-                            color = CorTextoEscuro,
+                            color = tinta,
                             modifier = Modifier.padding(bottom = 4.dp)
                         )
                         Row(
@@ -210,7 +430,7 @@ fun TelaCriaCriptogramasAdminContent(
                             horizontalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
                             Card(
-                                colors = CardDefaults.cardColors(containerColor = CorInputFundo),
+                                colors = CardDefaults.cardColors(containerColor = ficha2),
                                 border = BorderStroke(1.dp, CorBordaCard),
                                 shape = RoundedCornerShape(4.dp),
                                 modifier = Modifier.size(width = 52.dp, height = 58.dp)
@@ -219,7 +439,7 @@ fun TelaCriaCriptogramasAdminContent(
                                     modifier = Modifier.fillMaxSize(),
                                     contentAlignment = Alignment.Center
                                 ) {
-                                    IconeAvatarAutor(tint = CorTextoEscuro)
+                                    IconeAvatarAutor(tint = tinta)
                                 }
                             }
 
@@ -227,12 +447,12 @@ fun TelaCriaCriptogramasAdminContent(
                                 value = uiState.autor,
                                 onValueChange = onAutorChange,
                                 colors = OutlinedTextFieldDefaults.colors(
-                                    focusedContainerColor = CorInputFundo,
-                                    unfocusedContainerColor = CorInputFundo,
+                                    focusedContainerColor = ficha2,
+                                    unfocusedContainerColor = ficha2,
                                     focusedBorderColor = CorBordaCard,
                                     unfocusedBorderColor = CorBordaCard,
-                                    focusedTextColor = CorTextoEscuro,
-                                    unfocusedTextColor = CorTextoEscuro
+                                    focusedTextColor = tinta,
+                                    unfocusedTextColor = tinta
                                 ),
                                 singleLine = true,
                                 modifier = Modifier.weight(1f)
@@ -244,16 +464,16 @@ fun TelaCriaCriptogramasAdminContent(
                     Column {
                         Text(
                             text = "Categoria",
-                            fontFamily = FontFamily.Monospace,
+                            fontFamily = CourierPrime,
                             fontSize = 13.sp,
-                            color = CorTextoEscuro,
+                            color = tinta,
                             modifier = Modifier.padding(bottom = 4.dp)
                         )
                         Box(modifier = Modifier.fillMaxWidth()) {
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .background(CorInputFundo, RoundedCornerShape(4.dp))
+                                    .background(ficha2, RoundedCornerShape(4.dp))
                                     .border(1.dp, CorBordaCard, RoundedCornerShape(4.dp))
                                     .clickable { onMenuExpandidoChange(true) }
                                     .padding(horizontal = 12.dp, vertical = 14.dp),
@@ -262,25 +482,25 @@ fun TelaCriaCriptogramasAdminContent(
                             ) {
                                 Text(
                                     text = uiState.categoriaSelecionada,
-                                    fontFamily = FontFamily.Monospace,
+                                    fontFamily = CourierPrime,
                                     fontSize = 14.sp,
-                                    color = CorTextoEscuro
+                                    color = tinta
                                 )
-                                IconeSetaBaixo(tint = CorTextoEscuro)
+                                IconeSetaBaixo(tint = tinta)
                             }
 
                             DropdownMenu(
                                 expanded = uiState.menuCategoriaExpandido,
                                 onDismissRequest = { onMenuExpandidoChange(false) },
-                                modifier = Modifier.background(CorInputFundo)
+                                modifier = Modifier.background(ficha2)
                             ) {
                                 uiState.categoriasDisponiveis.forEach { cat ->
                                     DropdownMenuItem(
                                         text = {
                                             Text(
                                                 text = cat,
-                                                fontFamily = FontFamily.Monospace,
-                                                color = CorTextoEscuro
+                                                fontFamily = CourierPrime,
+                                                color = tinta
                                             )
                                         },
                                         onClick = { onCategoriaChange(cat) }
@@ -294,9 +514,9 @@ fun TelaCriaCriptogramasAdminContent(
                     Column {
                         Text(
                             text = "Dificuldade",
-                            fontFamily = FontFamily.Monospace,
+                            fontFamily = CourierPrime,
                             fontSize = 13.sp,
-                            color = CorTextoEscuro,
+                            color = tinta,
                             modifier = Modifier.padding(bottom = 4.dp)
                         )
                         Row(
@@ -315,7 +535,7 @@ fun TelaCriaCriptogramasAdminContent(
                                 Box(
                                     modifier = Modifier
                                         .weight(1f)
-                                        .background(if (selecionado) CorBadgeEscuro else CorInputFundo)
+                                        .background(if (selecionado) CorBadgeEscuro else ficha2)
                                         .clickable { onDificuldadeChange(dif) }
                                         .border(
                                             width = if (index < dificuldades.size - 1) 1.dp else 0.dp,
@@ -326,42 +546,14 @@ fun TelaCriaCriptogramasAdminContent(
                                 ) {
                                     Text(
                                         text = label,
-                                        fontFamily = FontFamily.Monospace,
+                                        fontFamily = CourierPrime,
                                         fontWeight = if (selecionado) FontWeight.Bold else FontWeight.Normal,
                                         fontSize = 14.sp,
-                                        color = if (selecionado) Color.White else CorTextoEscuro
+                                        color = if (selecionado) Color.White else tinta
                                     )
                                 }
                             }
                         }
-                    }
-
-                    Spacer(modifier = Modifier.height(4.dp))
-
-                    // Campo 5: Origem (Manual / API de citações)
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(
-                            text = "Origem: ${uiState.origemSelecionada}",
-                            fontFamily = FontFamily.Monospace,
-                            fontSize = 12.sp,
-                            color = CorTextoSecundario
-                        )
-                        Text(
-                            text = if (uiState.origemSelecionada == "Manual") "Mudar p/ API" else "Mudar p/ Manual",
-                            fontFamily = FontFamily.Monospace,
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = CorTextoEscuro,
-                            textDecoration = TextDecoration.Underline,
-                            modifier = Modifier.clickable {
-                                val nova = if (uiState.origemSelecionada == "Manual") "API de citações" else "Manual"
-                                onOrigemChange(nova)
-                            }
-                        )
                     }
                 }
             }
@@ -372,8 +564,8 @@ fun TelaCriaCriptogramasAdminContent(
             Button(
                 onClick = onSalvarClick,
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = CorBotaoRoxo,
-                    contentColor = Color.White
+                    containerColor = acao,
+                    contentColor = sobreAcao
                 ),
                 shape = RoundedCornerShape(8.dp),
                 modifier = Modifier
@@ -382,7 +574,7 @@ fun TelaCriaCriptogramasAdminContent(
             ) {
                 Text(
                     text = "Salvar caso",
-                    fontFamily = FontFamily.Monospace,
+                    fontFamily = CourierPrime,
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp
                 )

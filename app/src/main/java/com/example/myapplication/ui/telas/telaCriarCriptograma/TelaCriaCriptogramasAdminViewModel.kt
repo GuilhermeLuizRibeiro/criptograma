@@ -1,11 +1,11 @@
 package com.example.myapplication.ui.telas.telaCriarCriptograma
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.myapplication.data.local.database.AppDatabase
 import com.example.myapplication.data.local.entity.Criptograma
+import com.example.myapplication.data.remote.model.CitacaoDto
 import com.example.myapplication.data.repository.CriptogramaRepository
+import com.example.myapplication.data.repository.EstoicaRepository
 import com.example.myapplication.model.enums.Dificuldade
 import java.util.UUID
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,9 +14,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class TelaCriaCriptogramasAdminViewModel(application: Application) : AndroidViewModel(application) {
-
-    private val repository = CriptogramaRepository(AppDatabase.getDatabase(application).criptogramaDAO())
+class TelaCriaCriptogramasAdminViewModel(
+    private val repository: CriptogramaRepository,
+    private val estoicaRepository: EstoicaRepository,
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(TelaCriaCriptogramasAdminUiState())
     val uiState: StateFlow<TelaCriaCriptogramasAdminUiState> = _uiState.asStateFlow()
@@ -58,6 +59,47 @@ class TelaCriaCriptogramasAdminViewModel(application: Application) : AndroidView
 
     fun onOrigemSelecionadaChange(novaOrigem: String) {
         _uiState.update { it.copy(origemSelecionada = novaOrigem) }
+    }
+
+    fun onTermoBuscaApiChange(novoTermo: String) {
+        _uiState.update { it.copy(termoBuscaApi = novoTermo) }
+    }
+
+    fun buscarCitacoesNaApi() {
+        val termo = _uiState.value.termoBuscaApi.trim()
+        if (termo.isBlank()) return
+
+        viewModelScope.launch {
+            _uiState.update { it.copy(buscandoApi = true, mensagemErroApi = null) }
+            val citacoes = estoicaRepository.buscarCitacoes(termo)
+            if (citacoes.isEmpty()) {
+                _uiState.update {
+                    it.copy(
+                        buscandoApi = false,
+                        resultadoCitacoesApi = emptyList(),
+                        mensagemErroApi = "Nenhuma citação encontrada para '$termo'."
+                    )
+                }
+            } else {
+                _uiState.update {
+                    it.copy(
+                        buscandoApi = false,
+                        resultadoCitacoesApi = citacoes,
+                        mensagemErroApi = null
+                    )
+                }
+            }
+        }
+    }
+
+    fun selecionarCitacaoApi(citacao: CitacaoDto) {
+        _uiState.update {
+            it.copy(
+                frase = citacao.texto ?: "",
+                autor = citacao.autor ?: "",
+                resultadoCitacoesApi = emptyList()
+            )
+        }
     }
 
     fun onMenuCategoriaExpandidoChange(expandido: Boolean) {

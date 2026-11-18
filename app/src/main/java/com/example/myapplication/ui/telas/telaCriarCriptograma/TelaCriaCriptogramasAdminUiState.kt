@@ -1,6 +1,7 @@
 package com.example.myapplication.ui.telas.telaCriarCriptograma
 
 import com.example.myapplication.data.local.entity.Criptograma
+import com.example.myapplication.data.remote.model.CitacaoDto
 import com.example.myapplication.model.ErrosFormCriptograma
 import com.example.myapplication.model.enums.Dificuldade
 
@@ -10,6 +11,10 @@ data class TelaCriaCriptogramasAdminUiState(
     val categoriaSelecionada: String = "Citações",
     val dificuldadeSelecionada: Dificuldade = Dificuldade.FACIL,
     val origemSelecionada: String = "Manual",
+    val termoBuscaApi: String = "",
+    val buscandoApi: Boolean = false,
+    val resultadoCitacoesApi: List<CitacaoDto> = emptyList(),
+    val mensagemErroApi: String? = null,
     val menuCategoriaExpandido: Boolean = false,
     val categoriasDisponiveis: List<String> = listOf("Citações", "Provérbios", "Cinema", "Literatura", "História"),
     val origensDisponiveis: List<String> = listOf("Manual", "API de citações"),

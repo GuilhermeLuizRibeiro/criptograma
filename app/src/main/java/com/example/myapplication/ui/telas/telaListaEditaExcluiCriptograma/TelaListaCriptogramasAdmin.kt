@@ -33,34 +33,44 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.myapplication.data.local.database.AppDatabase
 import com.example.myapplication.data.local.entity.Criptograma
+import com.example.myapplication.data.repository.CriptogramaRepository
 import com.example.myapplication.model.enums.Dificuldade
 import com.example.myapplication.ui.componentes.NavegacaoRodapeAdmin
+import com.example.myapplication.ui.componentes.fundoQuadriculado
+import com.example.myapplication.ui.theme.CourierPrime
 import com.example.myapplication.ui.theme.CorBadgeEscuro
 import com.example.myapplication.ui.theme.CorBordaCard
-import com.example.myapplication.ui.theme.CorBotaoRoxo
-import com.example.myapplication.ui.theme.CorFundoCard
-import com.example.myapplication.ui.theme.CorFundoTela
-import com.example.myapplication.ui.theme.CorInputFundo
-import com.example.myapplication.ui.theme.CorTextoEscuro
 import com.example.myapplication.ui.theme.CorTextoSecundario
 import com.example.myapplication.ui.theme.CorTextoVermelho
+import com.example.myapplication.ui.theme.abaInativa
+import com.example.myapplication.ui.theme.acao
+import com.example.myapplication.ui.theme.ficha
+import com.example.myapplication.ui.theme.ficha2
+import com.example.myapplication.ui.theme.polaroid
+import com.example.myapplication.ui.theme.sobreAcao
+import com.example.myapplication.ui.theme.tinta
 
 @Composable
 fun TelaListaCriptogramasAdmin(
     modifier: Modifier = Modifier,
-    viewModel: TelaListaCriptogramasAdminViewModel = viewModel(),
     onNovoCasoClick: () -> Unit = {},
     onEditarClick: (Criptograma) -> Unit = {},
     onExcluirClick: (Criptograma) -> Unit = {},
     onItemNavegacaoClick: (String) -> Unit = {},
+    viewModel: TelaListaCriptogramasAdminViewModel = viewModel(
+        factory = TelaListaCriptogramasAdminViewModelFactory(
+            CriptogramaRepository(AppDatabase.getDatabase(LocalContext.current).criptogramaDAO())
+        )
+    ),
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -94,14 +104,16 @@ fun TelaListaCriptogramasAdminContent(
     onExcluirClick: (Criptograma) -> Unit = {},
 ) {
     Scaffold(
-        containerColor = CorFundoTela,
+        modifier = modifier
+            .fillMaxSize()
+            .fundoQuadriculado(),
+        containerColor = Color.Transparent,
         bottomBar = {
             NavegacaoRodapeAdmin(
                 itemSelecionado = uiState.itemNavegacaoSelecionado,
                 onItemClick = onItemNavegacaoChange
             )
-        },
-        modifier = modifier
+        }
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -119,14 +131,14 @@ fun TelaListaCriptogramasAdminContent(
             ) {
                 Text(
                     text = "Casos",
-                    fontFamily = FontFamily.Monospace,
+                    fontFamily = CourierPrime,
                     fontWeight = FontWeight.Bold,
                     fontSize = 22.sp,
-                    color = CorTextoEscuro
+                    color = tinta
                 )
                 Text(
                     text = "${uiState.quantidadeCasos} casos",
-                    fontFamily = FontFamily.Monospace,
+                    fontFamily = CourierPrime,
                     fontSize = 14.sp,
                     color = CorTextoSecundario
                 )
@@ -143,7 +155,7 @@ fun TelaListaCriptogramasAdminContent(
                     Box(
                         modifier = Modifier
                             .background(
-                                color = if (selecionado) CorFundoCard else CorFundoTela,
+                                color = if (selecionado) ficha else abaInativa,
                                 shape = RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp)
                             )
                             .border(
@@ -159,10 +171,10 @@ fun TelaListaCriptogramasAdminContent(
                     ) {
                         Text(
                             text = opcao,
-                            fontFamily = FontFamily.Monospace,
+                            fontFamily = CourierPrime,
                             fontWeight = if (selecionado) FontWeight.Bold else FontWeight.Normal,
                             fontSize = 13.sp,
-                            color = CorTextoEscuro
+                            color = tinta
                         )
                     }
                 }
@@ -170,7 +182,7 @@ fun TelaListaCriptogramasAdminContent(
 
             // Card Principal que envolve a busca e os criptogramas
             Card(
-                colors = CardDefaults.cardColors(containerColor = CorFundoCard),
+                colors = CardDefaults.cardColors(containerColor = ficha),
                 border = BorderStroke(2.dp, CorBordaCard),
                 shape = RoundedCornerShape(bottomStart = 8.dp, bottomEnd = 8.dp, topEnd = 8.dp),
                 modifier = Modifier
@@ -189,18 +201,18 @@ fun TelaListaCriptogramasAdminContent(
                         placeholder = {
                             Text(
                                 text = "Buscar frase ou autor",
-                                fontFamily = FontFamily.Monospace,
+                                fontFamily = CourierPrime,
                                 fontSize = 14.sp,
                                 color = CorTextoSecundario
                             )
                         },
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedContainerColor = CorInputFundo,
-                            unfocusedContainerColor = CorInputFundo,
+                            focusedContainerColor = ficha2,
+                            unfocusedContainerColor = ficha2,
                             focusedBorderColor = CorBordaCard,
                             unfocusedBorderColor = CorBordaCard,
-                            focusedTextColor = CorTextoEscuro,
-                            unfocusedTextColor = CorTextoEscuro
+                            focusedTextColor = tinta,
+                            unfocusedTextColor = tinta
                         ),
                         singleLine = true,
                         modifier = Modifier
@@ -230,8 +242,8 @@ fun TelaListaCriptogramasAdminContent(
             Button(
                 onClick = onNovoCasoClick,
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = CorBotaoRoxo,
-                    contentColor = Color.White
+                    containerColor = acao,
+                    contentColor = sobreAcao
                 ),
                 shape = RoundedCornerShape(8.dp),
                 modifier = Modifier
@@ -240,7 +252,7 @@ fun TelaListaCriptogramasAdminContent(
             ) {
                 Text(
                     text = "Novo caso",
-                    fontFamily = FontFamily.Monospace,
+                    fontFamily = CourierPrime,
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp
                 )
@@ -256,7 +268,7 @@ private fun ItemCriptogramaAdmin(
     onExcluir: () -> Unit,
 ) {
     Card(
-        colors = CardDefaults.cardColors(containerColor = CorFundoCard),
+        colors = CardDefaults.cardColors(containerColor = ficha2),
         border = BorderStroke(1.dp, CorBordaCard),
         shape = RoundedCornerShape(6.dp),
         modifier = Modifier.fillMaxWidth()
@@ -273,7 +285,7 @@ private fun ItemCriptogramaAdmin(
                 verticalAlignment = Alignment.Top
             ) {
                 Card(
-                    colors = CardDefaults.cardColors(containerColor = CorInputFundo),
+                    colors = CardDefaults.cardColors(containerColor = polaroid),
                     border = BorderStroke(1.dp, CorBordaCard),
                     shape = RoundedCornerShape(4.dp)
                 ) {
@@ -287,15 +299,15 @@ private fun ItemCriptogramaAdmin(
                             Box(
                                 modifier = Modifier
                                     .size(8.dp)
-                                    .background(CorTextoEscuro, CircleShape)
+                                    .background(tinta, CircleShape)
                             )
                             Spacer(modifier = Modifier.width(4.dp))
                             Text(
                                 text = "Nº ${criptograma.id.toString().padStart(4, '0')}",
-                                fontFamily = FontFamily.Monospace,
+                                fontFamily = CourierPrime,
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = CorTextoEscuro
+                                color = tinta
                             )
                         }
                         Spacer(modifier = Modifier.height(2.dp))
@@ -310,7 +322,7 @@ private fun ItemCriptogramaAdmin(
                                     Dificuldade.MEDIO -> "MÉDIO"
                                     Dificuldade.DIFICIL -> "DIFÍCIL"
                                 },
-                                fontFamily = FontFamily.Monospace,
+                                fontFamily = CourierPrime,
                                 fontSize = 10.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color.White
@@ -321,7 +333,7 @@ private fun ItemCriptogramaAdmin(
 
                 Text(
                     text = if (criptograma.idExterno?.startsWith("API") == true) "API" else "Manual",
-                    fontFamily = FontFamily.Monospace,
+                    fontFamily = CourierPrime,
                     fontSize = 11.sp,
                     color = CorTextoSecundario
                 )
@@ -331,10 +343,10 @@ private fun ItemCriptogramaAdmin(
 
             Text(
                 text = "“${criptograma.frase}”",
-                fontFamily = FontFamily.Monospace,
+                fontFamily = CourierPrime,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
-                color = CorTextoEscuro
+                color = tinta
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -346,7 +358,7 @@ private fun ItemCriptogramaAdmin(
             ) {
                 Text(
                     text = "${criptograma.autor} · ${criptograma.categoria}",
-                    fontFamily = FontFamily.Monospace,
+                    fontFamily = CourierPrime,
                     fontSize = 12.sp,
                     color = CorTextoSecundario
                 )
@@ -356,15 +368,15 @@ private fun ItemCriptogramaAdmin(
                 ) {
                     Text(
                         text = "Editar",
-                        fontFamily = FontFamily.Monospace,
+                        fontFamily = CourierPrime,
                         fontSize = 12.sp,
-                        color = CorTextoEscuro,
+                        color = tinta,
                         textDecoration = TextDecoration.Underline,
                         modifier = Modifier.clickable { onEditar() }
                     )
                     Text(
                         text = "Excluir",
-                        fontFamily = FontFamily.Monospace,
+                        fontFamily = CourierPrime,
                         fontSize = 12.sp,
                         color = CorTextoVermelho,
                         textDecoration = TextDecoration.Underline,

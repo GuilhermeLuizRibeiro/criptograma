@@ -46,7 +46,7 @@ fun AppNavigation() {
                 onItemNavegacaoClick = { item ->
                     if (item == "Perfil") {
                         navController.navigate(Rotas.TELA_PERFIL)
-                    } else if (item == "Casos") {
+                    } else if(item == "Casos") {
                         navController.navigate(Rotas.TELA_CASOS)
                     }
                 },
@@ -66,18 +66,42 @@ fun AppNavigation() {
                 },
                 onItemNavegacaoClick = { item ->
                     if (item == "Perfil") {
-                        navController.navigate(Rotas.TELA_PERFIL)
+                        navController.navigate("${Rotas.TELA_PERFIL}/${Papel.ADMIN.name}")
                     }
                 }
             )
         }
 
-        composable(Rotas.TELA_PERFIL) {
+        composable(
+            route = "${Rotas.TELA_PERFIL}/{papel}",
+            arguments = listOf(
+                navArgument("papel") {
+                    type = NavType.StringType
+                    defaultValue = Papel.ADMIN.name
+                }
+            )
+        ) { backStackEntry ->
+            val papelString = backStackEntry.arguments?.getString("papel") ?: Papel.ADMIN.name
+            val papel = try {
+                Papel.valueOf(papelString)
+            } catch (e: Exception) {
+                Papel.ADMIN
+            }
+
             TelaPerfil(
+                papel = papel,
                 onItemNavegacaoClick = { item ->
                     if (item == "Painel") {
                         navController.navigate(Rotas.TELA_LISTA_ADMIN) {
                             popUpTo(Rotas.TELA_LISTA_ADMIN) { inclusive = true }
+                        }
+                    } else if (item == "Início") {
+                        navController.navigate(Rotas.TELA_INICIO) {
+                            popUpTo(Rotas.TELA_INICIO) { inclusive = true }
+                        }
+                    } else if (item == "Casos") {
+                        navController.navigate(Rotas.TELA_CASOS) {
+                            popUpTo(Rotas.TELA_CASOS) { inclusive = true }
                         }
                     }
                 },
