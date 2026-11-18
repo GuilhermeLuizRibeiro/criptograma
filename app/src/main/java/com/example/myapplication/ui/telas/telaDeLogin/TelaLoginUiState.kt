@@ -5,4 +5,5 @@ import com.example.myapplication.data.local.entity.Usuario
 data class TelaLoginUiState(
     val usuarioLogado: Usuario? = null,
     val carregando: Boolean = false,
+    val mensagemErro: String? = null
 )

@@ -13,7 +13,8 @@ data class InicioUiState(
     val partidas: List<Partida> = emptyList(),
     val criptogramas: List<Criptograma> = emptyList(),
     val itemNavegacaoSelecionado: String = "Início",
-    val carregando: Boolean = false
+    val carregando: Boolean = false,
+    val mensagemErro: String? = null
 ) {
     fun criptogramaDaPartida(partida: Partida): Criptograma? {
         return criptogramas.find { it.id == partida.criptogramaId }

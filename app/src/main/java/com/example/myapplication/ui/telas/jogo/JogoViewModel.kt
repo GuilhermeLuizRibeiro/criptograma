@@ -34,7 +34,9 @@ class JogoViewModel(
 
     init {
         viewModelScope.launch {
-            val usuario = repositoryUsuario.garantirUsuarioDefault(Papel.USUARIO)
+            val usuario = repositoryUsuario.garantirUsuarioDefault(Papel.USUARIO).getOrElse { e ->
+                registrarErro(e); return@launch
+            }
             val partidas = repositoryPartida.listarTodos().first()
             val idCriptograma = criptogramaId
                 ?: partidas.firstOrNull { it.usuarioId == usuario.id && !it.concluida }?.criptogramaId
@@ -175,7 +177,9 @@ class JogoViewModel(
             val state = _uiState.value
             val criptograma = state.criptograma ?: return
             val usuarioId = state.usuarioId ?: return
-            val existente = state.partidaId?.let { repositoryPartida.buscarPorId(it) }
+            val existente = state.partidaId?.let {
+                repositoryPartida.buscarPorId(it).getOrElse { e -> registrarErro(e); return }
+            }
 
             if (existente == null && state.palpites.isEmpty()) return
 
@@ -198,10 +202,12 @@ class JogoViewModel(
 
             val idSalvo: Int
             if (existente != null) {
-                repositoryPartida.atualizar(partida)
+                repositoryPartida.atualizar(partida).onFailure { e -> registrarErro(e); return }
                 idSalvo = existente.id
             } else {
-                idSalvo = repositoryPartida.inserir(partida).toInt()
+                idSalvo = repositoryPartida.inserir(partida)
+                    .getOrElse { e -> registrarErro(e); return }
+                    .toInt()
                 _uiState.update { it.copy(partidaId = idSalvo) }
             }
 
@@ -215,12 +221,17 @@ class JogoViewModel(
     }
 
     private suspend fun registrarCasoResolvido(usuarioId: Int, pontos: Int) {
-        val usuario = repositoryUsuario.buscarPorId(usuarioId) ?: return
+        val usuario = repositoryUsuario.buscarPorId(usuarioId)
+            .getOrElse { e -> registrarErro(e); return } ?: return
         repositoryUsuario.salvar(
             usuario.copy(
                 casosResolvidos = usuario.casosResolvidos + 1,
                 pontos = usuario.pontos + pontos
             )
-        )
+        ).onFailure { e -> registrarErro(e) }
+    }
+
+    private fun registrarErro(e: Throwable) {
+        _uiState.update { it.copy(carregando = false, mensagemErro = e.message) }
     }
 }

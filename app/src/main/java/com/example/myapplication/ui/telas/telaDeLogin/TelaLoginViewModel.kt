@@ -20,18 +20,30 @@ class TelaLoginViewModel(
     fun entrarComoAdmin(onSucesso: () -> Unit) {
         viewModelScope.launch {
             _uiState.update { it.copy(carregando = true) }
-            val usuario = usuarioRepository.garantirUsuarioDefault(Papel.ADMIN)
-            _uiState.update { it.copy(usuarioLogado = usuario, carregando = false) }
-            onSucesso()
+            usuarioRepository.garantirUsuarioDefault(Papel.ADMIN)
+                .onSuccess { usuario ->
+                    _uiState.update { it.copy(usuarioLogado = usuario, carregando = false) }
+                    onSucesso()
+                }
+                .onFailure { erro ->
+                    _uiState.update { it.copy(carregando = false) }
+                    _uiState.update { it.copy(mensagemErro = erro.message) }
+                }
         }
     }
 
     fun entrarComoJogador(onSucesso: () -> Unit) {
         viewModelScope.launch {
             _uiState.update { it.copy(carregando = true) }
-            val usuario = usuarioRepository.garantirUsuarioDefault(Papel.USUARIO)
-            _uiState.update { it.copy(usuarioLogado = usuario, carregando = false) }
-            onSucesso()
+            usuarioRepository.garantirUsuarioDefault(Papel.USUARIO)
+                .onSuccess { usuario ->
+                    _uiState.update { it.copy(usuarioLogado = usuario, carregando = false) }
+                    onSucesso()
+                }
+                .onFailure { erro ->
+                    _uiState.update { it.copy(carregando = false) }
+                    _uiState.update { it.copy(mensagemErro = erro.message) }
+                }
         }
     }
 }

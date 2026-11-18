@@ -19,10 +19,9 @@ class TelaPerfilViewModel(
 
     fun carregarUsuario(papel: Papel) {
         viewModelScope.launch {
-            val user = usuarioRepository.garantirUsuarioDefault(papel)
-            _uiState.update {
-                it.copy(usuario = user)
-            }
+            usuarioRepository.garantirUsuarioDefault(papel)
+                .onSuccess { user -> _uiState.update { it.copy(usuario = user) } }
+                .onFailure { e -> _uiState.update { it.copy(erro = e.message) } }
         }
     }
 

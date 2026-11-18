@@ -21,7 +21,8 @@ data class JogoUiState(
     val dicasUsadas: Int = 0,
     val originalRevelado: Boolean = false,
     val pausado: Boolean = false,
-    val carregando: Boolean = false
+    val carregando: Boolean = false,
+    val mensagemErro: String? = null
 ) {
     companion object {
         const val CUSTO_REVELAR_LETRA = 10

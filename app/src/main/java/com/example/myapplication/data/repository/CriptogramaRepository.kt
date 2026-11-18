@@ -1,28 +1,70 @@
 package com.example.myapplication.data.repository
 
+import android.util.Log
+import androidx.compose.runtime.CancellationHandle
+import androidx.compose.runtime.snapshots.SnapshotApplyResult
 import com.example.myapplication.data.local.dao.CriptogramaDAO
 import com.example.myapplication.data.local.entity.Criptograma
 import com.example.myapplication.model.enums.Dificuldade
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 
 class CriptogramaRepository(private val dao: CriptogramaDAO) {
 
-    fun listarTodos(): Flow<List<Criptograma>> = dao.listarTodos()
+    fun listarTodos(): Flow<List<Criptograma>> {
+        return dao.listarTodos()
+    }
 
     fun filtrar(dificuldade: Dificuldade?, categoria: String?): Flow<List<Criptograma>> =
         dao.filtrar(dificuldade, categoria)
 
-    suspend fun buscarPorId(id: Int): Criptograma? = dao.buscarPorId(id)
-
-    suspend fun salvar(criptograma: Criptograma) {
-        if (criptograma.id > 0) {
-            dao.atualizar(criptograma)
-        } else {
-            dao.inserir(criptograma)
+    suspend fun buscarPorId(id: Int): Result<Criptograma?> {
+        return try {
+            Result.success(dao.buscarPorId(id))
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Log.e("CriptogramaRepository", "Não foi possível buscar o criptograma.", e)
+            Result.failure(Exception("Não foi possível buscar o criptograma."))
         }
     }
 
-    suspend fun atualizar(criptograma: Criptograma) = dao.atualizar(criptograma)
+    suspend fun salvar(criptograma: Criptograma): Result<Unit> {
+        return try {
+            Result.success(
+                if (criptograma.id > 0) {
+                    dao.atualizar(criptograma)
+                } else {
+                    dao.inserir(criptograma)
+                }
+            )
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Log.e("CriptogramaRepository", "Não foi possível salvar o criptograma.", e)
+            Result.failure(Exception("Não foi possível salvar o criptograma."))
+        }
+    }
 
-    suspend fun excluir(criptograma: Criptograma) = dao.excluir(criptograma)
+    suspend fun atualizar(criptograma: Criptograma): Result<Unit> {
+        return try {
+            Result.success(dao.atualizar(criptograma))
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Log.e("CriptogramaRepository", "Não foi possível atualizar o criptograma.", e)
+            Result.failure(Exception("Não foi possível atualizar o criptograma."))
+        }
+    }
+
+    suspend fun excluir(criptograma: Criptograma): Result<Unit> {
+        return try {
+            Result.success(dao.excluir(criptograma))
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Log.e("CriptogramaRepository", "Não foi possível excluir o criptograma.", e)
+            Result.failure(Exception("Não foi possível excluir o criptograma."))
+        }
+    }
 }

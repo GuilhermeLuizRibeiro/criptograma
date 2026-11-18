@@ -25,17 +25,23 @@ class TelaCriaCriptogramasAdminViewModel(
     fun carregarCriptogramaPorId(id: Int) {
         if (id <= 0) return
         viewModelScope.launch {
-            val cripto = repository.buscarPorId(id)
-            if (cripto != null) {
-                _uiState.update {
-                    it.copy(
-                        criptogramaEmEdicao = cripto,
-                        frase = cripto.frase,
-                        autor = cripto.autor,
-                        categoriaSelecionada = cripto.categoria,
-                        dificuldadeSelecionada = cripto.dificuldade,
-                        origemSelecionada = if (cripto.idExterno?.startsWith("API") == true) "API de citações" else "Manual"
-                    )
+            repository.buscarPorId(id)
+                .onSuccess { criptograma ->
+                    if(criptograma != null) {
+                        _uiState.update {
+                            it.copy(
+                                criptogramaEmEdicao = criptograma,
+                                frase = criptograma.frase,
+                                autor = criptograma.autor,
+                                categoriaSelecionada = criptograma.categoria,
+                                dificuldadeSelecionada = criptograma.dificuldade,
+                                origemSelecionada = if (criptograma.idExterno?.startsWith("API") == true) "API de citações" else "Manual"
+                            )
+                        }
+                    }
+                }
+                .onFailure { erro ->
+                    _uiState.update { it.copy(mensagemErroSalvar = erro.message)
                 }
             }
         }
@@ -71,24 +77,28 @@ class TelaCriaCriptogramasAdminViewModel(
 
         viewModelScope.launch {
             _uiState.update { it.copy(buscandoApi = true, mensagemErroApi = null) }
-            val citacoes = estoicaRepository.buscarCitacoes(termo)
-            if (citacoes.isEmpty()) {
-                _uiState.update {
-                    it.copy(
-                        buscandoApi = false,
-                        resultadoCitacoesApi = emptyList(),
-                        mensagemErroApi = "Nenhuma citação encontrada para '$termo'."
-                    )
+
+            estoicaRepository.buscarCitacoes(termo)
+                .onSuccess { citacoes ->
+                    _uiState.update {
+                        it.copy(
+                            buscandoApi = false,
+                            resultadoCitacoesApi = citacoes,
+                            mensagemErroApi = if (citacoes.isEmpty()) {
+                                "Nenhuma citação encontrada para '$termo'."
+                            } else null
+                        )
+                    }
                 }
-            } else {
-                _uiState.update {
-                    it.copy(
-                        buscandoApi = false,
-                        resultadoCitacoesApi = citacoes,
-                        mensagemErroApi = null
-                    )
+                .onFailure { erro ->
+                    _uiState.update {
+                        it.copy(
+                            buscandoApi = false,
+                            resultadoCitacoesApi = emptyList(),
+                            mensagemErroApi = erro.message
+                        )
+                    }
                 }
-            }
         }
     }
 
@@ -111,9 +121,18 @@ class TelaCriaCriptogramasAdminViewModel(
         if (_uiState.value.erros.temErros) return
 
         viewModelScope.launch {
+            _uiState.update { it.copy(mensagemErroSalvar = null) }
             val cripto = criarCriptograma()
+
             repository.salvar(cripto)
-            onSucesso(cripto)
+                .onSuccess {
+                    onSucesso(cripto)
+                }
+                .onFailure { erro ->
+                    _uiState.update {
+                        it.copy(mensagemErroSalvar = erro.message)
+                    }
+                }
         }
     }
 

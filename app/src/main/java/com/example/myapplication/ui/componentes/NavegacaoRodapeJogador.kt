@@ -61,7 +61,7 @@ fun NavegacaoRodapeJogador(
             horizontalArrangement = Arrangement.SpaceAround,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            val itens = listOf("Início", "Casos", "Ranking", "Perfil")
+            val itens = listOf("Início", "Casos", "Perfil")
 
             itens.forEach { titulo ->
                 val ativo = titulo == itemSelecionado
@@ -72,7 +72,6 @@ fun NavegacaoRodapeJogador(
                     when (titulo) {
                         "Início" -> InicioIcon(if (ativo) CorBotaoRoxo else CorTextoEscuro)
                         "Casos" -> CasosIcon(if (ativo) CorBotaoRoxo else CorTextoEscuro)
-                        "Ranking" -> RankingIcon(if (ativo) CorBotaoRoxo else CorTextoEscuro)
                         "Perfil" -> PerfilIcon(if (ativo) CorBotaoRoxo else CorTextoEscuro)
                     }
 
@@ -122,34 +121,6 @@ private fun CasosIcon(tint: Color) {
             close()
         }
         drawPath(path, color = tint, style = Stroke(width = 1.8.dp.toPx()))
-    }
-}
-
-@Composable
-private fun RankingIcon(tint: Color) {
-    Canvas(modifier = Modifier.size(20.dp)) {
-        val barWidth = 4.dp.toPx()
-        val gap = 3.dp.toPx()
-        val startX = (size.width - (3 * barWidth + 2 * gap)) / 2
-
-        drawRoundRect(
-            color = tint,
-            topLeft = Offset(startX, size.height * 0.55f),
-            size = Size(barWidth, size.height * 0.35f),
-            cornerRadius = CornerRadius(2f)
-        )
-        drawRoundRect(
-            color = tint,
-            topLeft = Offset(startX + barWidth + gap, size.height * 0.25f),
-            size = Size(barWidth, size.height * 0.65f),
-            cornerRadius = CornerRadius(2f)
-        )
-        drawRoundRect(
-            color = tint,
-            topLeft = Offset(startX + (barWidth + gap) * 2, size.height * 0.4f),
-            size = Size(barWidth, size.height * 0.5f),
-            cornerRadius = CornerRadius(2f)
-        )
     }
 }
 

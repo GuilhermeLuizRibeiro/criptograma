@@ -1,37 +1,35 @@
 package com.example.myapplication.data.repository
 
+import android.util.Log
 import com.example.myapplication.data.remote.api.EstoicaApiService
 import com.example.myapplication.data.remote.api.RetrofitClient
 import com.example.myapplication.data.remote.model.CitacaoDto
+import com.google.gson.JsonParseException
+import java.io.IOException
+import retrofit2.HttpException
 
 class EstoicaRepository(
     private val apiService: EstoicaApiService = RetrofitClient.estoicaApiService,
 ) {
-    private val frasesEstoicasFallback = listOf(
-        CitacaoDto(autor = "Sêneca", texto = "A sorte é o que acontece quando a preparação encontra a oportunidade."),
-        CitacaoDto(autor = "Marco Aurélio", texto = "Você tem poder sobre sua mente - não sobre eventos externos."),
-        CitacaoDto(autor = "Epiteto", texto = "Não é o que acontece com você, mas como você reage que importa.")
-    )
-
-    suspend fun buscarCitacoes(termo: String): List<CitacaoDto> {
+    suspend fun buscarCitacoes(termo: String): Result<List<CitacaoDto>> {
         val termoLimpo = termo.trim().lowercase()
 
         return try {
-            val lista = apiService.buscarQuotes()
-            val filtradas = lista.filter { item ->
+            val filtradas = apiService.buscarQuotes().filter { item ->
                 !item.texto.isNullOrBlank() &&
-                        (item.texto.lowercase().contains(termoLimpo) || item.autor?.lowercase()?.contains(termoLimpo) == true)
+                        (item.texto.lowercase().contains(termoLimpo) ||
+                                item.autor?.lowercase()?.contains(termoLimpo) == true)
             }
-
-            if (filtradas.isNotEmpty()) {
-                filtradas
-            } else if (lista.isNotEmpty()) {
-                lista.take(5)
-            } else {
-                frasesEstoicasFallback
-            }
-        } catch (e: Exception) {
-            frasesEstoicasFallback
+            Result.success(filtradas)
+        } catch (e: IOException) {
+            Log.e("Estoica Repository: ", "Falha de rede ao buscar citações", e)
+            Result.failure(Exception("Sem conexão com a internet. Verifique a rede e tente novamente."))
+        } catch (e: HttpException) {
+            Log.e("Estoica Repository: ", "API respondeu com erro HTTP ${e.code()}", e)
+            Result.failure(Exception("O serviço de citações respondeu com erro (${e.code()})."))
+        } catch (e: JsonParseException) {
+            Log.e("Estoica Repository: ", "JSON da API não bate com o CitacaoDto", e)
+            Result.failure(Exception("O serviço de citações devolveu uma resposta inesperada."))
         }
     }
 }

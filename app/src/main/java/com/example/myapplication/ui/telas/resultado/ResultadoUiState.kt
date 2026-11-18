@@ -11,7 +11,8 @@ data class ResultadoUiState(
     val partida: Partida? = null,
     val criptograma: Criptograma? = null,
     val usuario: Usuario? = null,
-    val carregando: Boolean = false
+    val carregando: Boolean = false,
+    val mensagemErro: String? = null
 ) {
     val carregado: Boolean
         get() = partida != null && criptograma != null
