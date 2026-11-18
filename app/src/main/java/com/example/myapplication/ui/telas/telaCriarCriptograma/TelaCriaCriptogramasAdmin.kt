@@ -22,6 +22,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.OutlinedTextField
@@ -45,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.myapplication.data.local.entity.Criptograma
+import com.example.myapplication.data.remote.model.CitacaoDto
 import com.example.myapplication.model.enums.Dificuldade
 import com.example.myapplication.ui.componentes.fundoQuadriculado
 import com.example.myapplication.ui.theme.CourierPrime
@@ -82,6 +84,9 @@ fun TelaCriaCriptogramasAdmin(
         onCategoriaChange = viewModel::onCategoriaSelecionadaChange,
         onDificuldadeChange = viewModel::onDificuldadeSelecionadaChange,
         onOrigemChange = viewModel::onOrigemSelecionadaChange,
+        onTermoBuscaApiChange = viewModel::onTermoBuscaApiChange,
+        onBuscarApiClick = viewModel::buscarCitacoesNaApi,
+        onSelecionarCitacaoApi = viewModel::selecionarCitacaoApi,
         onMenuExpandidoChange = viewModel::onMenuCategoriaExpandidoChange,
         onSalvarClick = {
             viewModel.salvarCriptograma(onSucesso = onSalvarClick)
@@ -99,6 +104,9 @@ fun TelaCriaCriptogramasAdminContent(
     onCategoriaChange: (String) -> Unit = {},
     onDificuldadeChange: (Dificuldade) -> Unit = {},
     onOrigemChange: (String) -> Unit = {},
+    onTermoBuscaApiChange: (String) -> Unit = {},
+    onBuscarApiClick: () -> Unit = {},
+    onSelecionarCitacaoApi: (CitacaoDto) -> Unit = {},
     onMenuExpandidoChange: (Boolean) -> Unit = {},
     onSalvarClick: () -> Unit = {},
     onCancelarClick: () -> Unit = {},
@@ -155,6 +163,206 @@ fun TelaCriaCriptogramasAdminContent(
                         .padding(14.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
+                    // SELETOR NO TOPO: Origem (Manual x API de citações)
+                    Column {
+                        Text(
+                            text = "Modo de cadastro",
+                            fontFamily = CourierPrime,
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = tinta,
+                            modifier = Modifier.padding(bottom = 4.dp)
+                        )
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .border(1.dp, CorBordaCard, RoundedCornerShape(4.dp))
+                        ) {
+                            uiState.origensDisponiveis.forEachIndexed { index, origem ->
+                                val selecionado = origem == uiState.origemSelecionada
+                                Box(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .background(if (selecionado) CorBadgeEscuro else ficha2)
+                                        .clickable { onOrigemChange(origem) }
+                                        .border(
+                                            width = if (index < uiState.origensDisponiveis.size - 1) 1.dp else 0.dp,
+                                            color = CorBordaCard
+                                        )
+                                        .padding(vertical = 10.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = origem,
+                                        fontFamily = CourierPrime,
+                                        fontWeight = if (selecionado) FontWeight.Bold else FontWeight.Normal,
+                                        fontSize = 13.sp,
+                                        color = if (selecionado) Color.White else tinta
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    // SEÇÃO API: Busca na API quando origem for "API de citações"
+                    if (uiState.origemSelecionada == "API de citações") {
+                        Card(
+                            colors = CardDefaults.cardColors(containerColor = ficha2),
+                            border = BorderStroke(1.dp, CorBordaCard),
+                            shape = RoundedCornerShape(6.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(10.dp),
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Text(
+                                    text = "Buscar citação na Web (API de Frases Estoicas)",
+                                    fontFamily = CourierPrime,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 13.sp,
+                                    color = tinta
+                                )
+
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    OutlinedTextField(
+                                        value = uiState.termoBuscaApi,
+                                        onValueChange = onTermoBuscaApiChange,
+                                        placeholder = {
+                                            Text(
+                                                text = "Ex: motivação...",
+                                                fontFamily = CourierPrime,
+                                                fontSize = 13.sp,
+                                                color = CorTextoSecundario
+                                            )
+                                        },
+                                        colors = OutlinedTextFieldDefaults.colors(
+                                            focusedContainerColor = Color.White,
+                                            unfocusedContainerColor = Color.White,
+                                            focusedBorderColor = CorBordaCard,
+                                            unfocusedBorderColor = CorBordaCard,
+                                            focusedTextColor = tinta,
+                                            unfocusedTextColor = tinta
+                                        ),
+                                        singleLine = true,
+                                        modifier = Modifier.weight(1f)
+                                    )
+
+                                    Button(
+                                        onClick = onBuscarApiClick,
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = acao,
+                                            contentColor = sobreAcao
+                                        ),
+                                        shape = RoundedCornerShape(4.dp),
+                                        modifier = Modifier.height(52.dp)
+                                    ) {
+                                        Text(
+                                            text = "Buscar",
+                                            fontFamily = CourierPrime,
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 13.sp
+                                        )
+                                    }
+                                }
+
+                                if (uiState.buscandoApi) {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                        modifier = Modifier.padding(vertical = 4.dp)
+                                    ) {
+                                        CircularProgressIndicator(
+                                            color = acao,
+                                            modifier = Modifier.size(18.dp),
+                                            strokeWidth = 2.dp
+                                        )
+                                        Text(
+                                            text = "Consultando API de citações...",
+                                            fontFamily = CourierPrime,
+                                            fontSize = 12.sp,
+                                            color = CorTextoSecundario
+                                        )
+                                    }
+                                }
+
+                                if (uiState.mensagemErroApi != null) {
+                                    Text(
+                                        text = uiState.mensagemErroApi,
+                                        fontFamily = CourierPrime,
+                                        fontSize = 12.sp,
+                                        color = CorTextoVermelho
+                                    )
+                                }
+
+                                // Lista de citações retornadas da API
+                                if (uiState.resultadoCitacoesApi.isNotEmpty()) {
+                                    Text(
+                                        text = "Clique em uma citação para usá-la no formulário:",
+                                        fontFamily = CourierPrime,
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = tinta,
+                                        modifier = Modifier.padding(top = 4.dp)
+                                    )
+
+                                    uiState.resultadoCitacoesApi.forEach { citacao ->
+                                        Card(
+                                            colors = CardDefaults.cardColors(containerColor = Color.White),
+                                            border = BorderStroke(1.dp, CorBordaCard),
+                                            shape = RoundedCornerShape(4.dp),
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .clickable { onSelecionarCitacaoApi(citacao) }
+                                                .padding(vertical = 2.dp)
+                                        ) {
+                                            Column(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .padding(8.dp)
+                                            ) {
+                                                Text(
+                                                    text = "“${citacao.texto ?: ""}”",
+                                                    fontFamily = CourierPrime,
+                                                    fontSize = 13.sp,
+                                                    color = tinta
+                                                )
+                                                Spacer(modifier = Modifier.height(2.dp))
+                                                Row(
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                                    verticalAlignment = Alignment.CenterVertically
+                                                ) {
+                                                    Text(
+                                                        text = "— ${citacao.autor ?: "Desconhecido"}",
+                                                        fontFamily = CourierPrime,
+                                                        fontSize = 11.sp,
+                                                        fontWeight = FontWeight.Bold,
+                                                        color = CorTextoSecundario
+                                                    )
+                                                    Text(
+                                                        text = "Usar esta citação",
+                                                        fontFamily = CourierPrime,
+                                                        fontSize = 11.sp,
+                                                        color = acao,
+                                                        fontWeight = FontWeight.Bold,
+                                                        textDecoration = TextDecoration.Underline
+                                                    )
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
                     // Campo 1: Frase em português
                     Column {
                         Text(
@@ -169,7 +377,7 @@ fun TelaCriaCriptogramasAdminContent(
                             onValueChange = onFraseChange,
                             placeholder = {
                                 Text(
-                                    text = "Digite a tradução",
+                                    text = "Digite ou selecione uma citação acima",
                                     fontFamily = CourierPrime,
                                     fontSize = 14.sp,
                                     color = CorTextoSecundario
@@ -337,34 +545,6 @@ fun TelaCriaCriptogramasAdminContent(
                                 }
                             }
                         }
-                    }
-
-                    Spacer(modifier = Modifier.height(4.dp))
-
-                    // Campo 5: Origem (Manual / API de citações)
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(
-                            text = "Origem: ${uiState.origemSelecionada}",
-                            fontFamily = CourierPrime,
-                            fontSize = 12.sp,
-                            color = CorTextoSecundario
-                        )
-                        Text(
-                            text = if (uiState.origemSelecionada == "Manual") "Mudar p/ API" else "Mudar p/ Manual",
-                            fontFamily = CourierPrime,
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = tinta,
-                            textDecoration = TextDecoration.Underline,
-                            modifier = Modifier.clickable {
-                                val nova = if (uiState.origemSelecionada == "Manual") "API de citações" else "Manual"
-                                onOrigemChange(nova)
-                            }
-                        )
                     }
                 }
             }
