@@ -71,24 +71,28 @@ class TelaCriaCriptogramasAdminViewModel(
 
         viewModelScope.launch {
             _uiState.update { it.copy(buscandoApi = true, mensagemErroApi = null) }
-            val citacoes = estoicaRepository.buscarCitacoes(termo)
-            if (citacoes.isEmpty()) {
-                _uiState.update {
-                    it.copy(
-                        buscandoApi = false,
-                        resultadoCitacoesApi = emptyList(),
-                        mensagemErroApi = "Nenhuma citação encontrada para '$termo'."
-                    )
+
+            estoicaRepository.buscarCitacoes(termo)
+                .onSuccess { citacoes ->
+                    _uiState.update {
+                        it.copy(
+                            buscandoApi = false,
+                            resultadoCitacoesApi = citacoes,
+                            mensagemErroApi = if (citacoes.isEmpty()) {
+                                "Nenhuma citação encontrada para '$termo'."
+                            } else null
+                        )
+                    }
                 }
-            } else {
-                _uiState.update {
-                    it.copy(
-                        buscandoApi = false,
-                        resultadoCitacoesApi = citacoes,
-                        mensagemErroApi = null
-                    )
+                .onFailure { erro ->
+                    _uiState.update {
+                        it.copy(
+                            buscandoApi = false,
+                            resultadoCitacoesApi = emptyList(),
+                            mensagemErroApi = erro.message
+                        )
+                    }
                 }
-            }
         }
     }
 
