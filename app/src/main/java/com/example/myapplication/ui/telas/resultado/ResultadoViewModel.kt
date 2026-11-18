@@ -24,16 +24,22 @@ class ResultadoViewModel(
     init {
         viewModelScope.launch {
             val partida = repositoryPartida.buscarPorId(partidaId)
-            val criptograma = partida?.criptogramaId?.let { repositoryCriptograma.buscarPorId(it) }
-            val usuario = partida?.let { repositoryUsuario.buscarPorId(it.usuarioId) }
-            _uiState.update { currentState ->
-                currentState.copy(
-                    partida = partida,
-                    criptograma = criptograma,
-                    usuario = usuario,
-                    carregando = false
-                )
+                .getOrElse { e -> mostrarErro(e); return@launch }
+            val criptograma = partida?.criptogramaId?.let {
+                repositoryCriptograma.buscarPorId(it)
+                    .getOrElse { e -> mostrarErro(e); return@launch }
+            }
+            val usuario = partida?.let {
+                repositoryUsuario.buscarPorId(it.usuarioId)
+                    .getOrElse { e -> mostrarErro(e); return@launch }
+            }
+            _uiState.update {
+                it.copy(partida = partida, criptograma = criptograma, usuario = usuario, carregando = false)
             }
         }
+    }
+
+    private fun mostrarErro(e: Throwable) {
+        _uiState.update { it.copy(carregando = false, mensagemErro = e.message) }
     }
 }

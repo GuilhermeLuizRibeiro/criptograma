@@ -560,6 +560,16 @@ fun TelaCriaCriptogramasAdminContent(
 
             Spacer(modifier = Modifier.height(12.dp))
 
+            if (uiState.mensagemErroSalvar != null) {
+                Text(
+                    text = uiState.mensagemErroSalvar,
+                    fontFamily = CourierPrime,
+                    fontSize = 12.sp,
+                    color = CorTextoVermelho
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+
             // Botão "Salvar caso"
             Button(
                 onClick = onSalvarClick,

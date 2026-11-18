@@ -5,6 +5,7 @@ import com.example.myapplication.model.enums.Papel
 
 data class TelaPerfilUiState(
     val usuario: Usuario? = null,
+    val erro: String? = null,
     val itemNavegacaoSelecionado: String = "Perfil",
 ) {
     val ehAdmin: Boolean

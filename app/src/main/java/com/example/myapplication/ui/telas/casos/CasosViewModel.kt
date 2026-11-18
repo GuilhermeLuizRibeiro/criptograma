@@ -24,10 +24,12 @@ class CasosViewModel(
 
     init {
         viewModelScope.launch {
-            val usuario = repositoryUsuario.garantirUsuarioDefault(Papel.USUARIO)
-            _uiState.update { currentState ->
-                currentState.copy(usuarioId = usuario.id, carregando = false)
-            }
+            repositoryUsuario.garantirUsuarioDefault(Papel.USUARIO)
+                .onSuccess { usuario ->
+                    _uiState.update { currentState ->
+                        currentState.copy(usuarioId = usuario.id, carregando = false)
+                    }
+                }
         }
 
         viewModelScope.launch {

@@ -16,6 +16,8 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -29,8 +31,10 @@ import com.example.myapplication.data.local.database.AppDatabase
 import com.example.myapplication.data.repository.UsuarioRepository
 import com.example.myapplication.ui.componentes.fundoQuadriculado
 import com.example.myapplication.ui.theme.CorBordaCard
+import com.example.myapplication.ui.theme.CorTextoVermelho
 import com.example.myapplication.ui.theme.CourierPrime
 import com.example.myapplication.ui.theme.acao
+import com.example.myapplication.ui.theme.erro
 import com.example.myapplication.ui.theme.ficha
 import com.example.myapplication.ui.theme.sobreAcao
 
@@ -45,11 +49,14 @@ fun TelaLogin(
         )
     ),
 ) {
+    val uiState by viewModel.uiState.collectAsState()
+
     val navegarParaAdmin = onAdminClick
     val navegarParaJogador = onJogadorClick
 
     TelaLoginContent(
         modifier = modifier,
+        erro = uiState.mensagemErro,
         onAdminClick = {
             viewModel.entrarComoAdmin(onSucesso = navegarParaAdmin)
         },
@@ -62,6 +69,7 @@ fun TelaLogin(
 @Composable
 fun TelaLoginContent(
     modifier: Modifier = Modifier,
+    erro: String? = null,
     onAdminClick: () -> Unit = {},
     onJogadorClick: () -> Unit = {},
 ) {
@@ -129,6 +137,15 @@ fun TelaLoginContent(
                             fontFamily = CourierPrime,
                             fontWeight = FontWeight.Bold,
                             fontSize = 18.sp
+                        )
+                    }
+
+                    if (erro != null) {
+                        Text(
+                            text = erro,
+                            color = CorTextoVermelho,
+                            fontFamily = CourierPrime,
+                            fontSize = 14.sp
                         )
                     }
                 }

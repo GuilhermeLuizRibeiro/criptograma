@@ -20,6 +20,7 @@ data class TelaCriaCriptogramasAdminUiState(
     val origensDisponiveis: List<String> = listOf("Manual", "API de citações"),
     val criptogramaEmEdicao: Criptograma? = null,
     val tentouSalvar: Boolean = false,
+    val mensagemErroSalvar: String? = null,
 ) {
     val editando: Boolean
         get() = criptogramaEmEdicao != null
