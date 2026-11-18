@@ -177,7 +177,6 @@ class JogoViewModel(
             val usuarioId = state.usuarioId ?: return
             val existente = state.partidaId?.let { repositoryPartida.buscarPorId(it) }
 
-            // Nada foi jogado ainda, então não cria uma partida vazia.
             if (existente == null && state.palpites.isEmpty()) return
 
             val agora = System.currentTimeMillis()
@@ -197,15 +196,20 @@ class JogoViewModel(
                 concluidaEm = if (concluida) existente?.concluidaEm ?: agora else null
             )
 
+            val idSalvo: Int
             if (existente != null) {
                 repositoryPartida.atualizar(partida)
+                idSalvo = existente.id
             } else {
-                val novoId = repositoryPartida.inserir(partida).toInt()
-                _uiState.update { it.copy(partidaId = novoId) }
+                idSalvo = repositoryPartida.inserir(partida).toInt()
+                _uiState.update { it.copy(partidaId = idSalvo) }
             }
 
-            if (concluida && existente?.concluida != true) {
-                registrarCasoResolvido(usuarioId, partida.pontuacao)
+            if (concluida) {
+                if (existente?.concluida != true) {
+                    registrarCasoResolvido(usuarioId, partida.pontuacao)
+                }
+                _uiState.update { it.copy(partidaConcluidaId = idSalvo) }
             }
         }
     }
