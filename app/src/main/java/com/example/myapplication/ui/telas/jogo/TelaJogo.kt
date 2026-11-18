@@ -1,5 +1,6 @@
 package com.example.myapplication.ui.telas.jogo
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -94,6 +95,10 @@ fun TelaJogo(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val criptograma = uiState.criptograma
 
+    BackHandler {
+        viewModel.onPausarClick(onPausarClick)
+    }
+
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
@@ -104,7 +109,7 @@ fun TelaJogo(
                 pausado = uiState.pausado,
                 tempo = uiState.tempoFormatado,
                 erros = uiState.erros,
-                onPausarClick = onPausarClick
+                onPausarClick = { viewModel.onPausarClick(onPausarClick) }
             )
         },
         bottomBar = {
