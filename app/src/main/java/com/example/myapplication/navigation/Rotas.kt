@@ -7,4 +7,6 @@ object Rotas {
     const val TELA_CRIA_ADMIN = "tela_cria_admin"
     const val TELA_PERFIL = "tela_perfil"
     const val TELA_CASOS = "tela_casos"
+
+    const val TELA_JOGO = "tela_jogo"
 }
