@@ -41,9 +41,8 @@ class TelaCriaCriptogramasAdminViewModel(
                     }
                 }
                 .onFailure { erro ->
-                    _uiState.update { it.copy(mensagemErroSalvar = erro.message)
+                    _uiState.update { it.copy(mensagemErroSalvar = erro.message) }
                 }
-            }
         }
     }
 
@@ -146,10 +145,13 @@ class TelaCriaCriptogramasAdminViewModel(
             "${prefixo}_${UUID.randomUUID().toString().take(8)}"
         }
 
+        val fraseNormalizada = state.frase.trim().replace(Regex("\\s+"), " ")
+        val autorNormalizado = state.autor.trim().replace(Regex("\\s+"), " ")
+
         return Criptograma(
             id = state.criptogramaEmEdicao?.id ?: 0,
-            frase = state.frase,
-            autor = state.autor,
+            frase = fraseNormalizada,
+            autor = autorNormalizado,
             categoria = state.categoriaSelecionada,
             dificuldade = state.dificuldadeSelecionada,
             idExterno = idExternoFinal
