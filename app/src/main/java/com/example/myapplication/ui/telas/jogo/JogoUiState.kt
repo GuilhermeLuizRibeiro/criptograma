@@ -10,6 +10,7 @@ import com.example.myapplication.model.enums.StatusCaso
 data class JogoUiState(
     val criptogramaId: Int? = null,
     val usuarioId: Int? = null,
+    val partidaId: Int? = null,
     val partidas: List<Partida> = emptyList(),
     val criptogramas: List<Criptograma> = emptyList(),
     val palpites: Map<Char, Char> = emptyMap(),
@@ -24,6 +25,8 @@ data class JogoUiState(
     companion object {
         const val CUSTO_REVELAR_LETRA = 10
         const val CUSTO_VER_ORIGINAL = 25
+        const val PONTOS_BASE = 100
+        const val PENALIDADE_ERRO = 5
     }
 
     val linhasTeclado: List<String>
@@ -108,6 +111,9 @@ data class JogoUiState(
     val penalidade: Int
         get() = dicasUsadas * CUSTO_REVELAR_LETRA +
                 if (originalRevelado) CUSTO_VER_ORIGINAL else 0
+
+    val pontuacaoFinal: Int
+        get() = (PONTOS_BASE - erros * PENALIDADE_ERRO - penalidade).coerceAtLeast(0)
 
     fun proximaLetraPendente(atual: Char?): Char? {
         val letras = letrasCifradas
