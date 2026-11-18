@@ -129,7 +129,16 @@ fun AppNavigation() {
             )
         ) { backStackEntry ->
             val id = backStackEntry.arguments?.getInt("id") ?: -1
-            TelaJogo(criptogramaId = if (id > 0) id else null)
+            val voltarParaInicio: () -> Unit = {
+                navController.navigate(Rotas.TELA_INICIO) {
+                    popUpTo(Rotas.TELA_INICIO) { inclusive = true }
+                }
+            }
+            TelaJogo(
+                criptogramaId = if (id > 0) id else null,
+                onPausarClick = voltarParaInicio,
+                onConcluirClick = voltarParaInicio
+            )
         }
     }
 }

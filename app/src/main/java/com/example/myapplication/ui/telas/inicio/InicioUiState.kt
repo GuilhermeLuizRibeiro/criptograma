@@ -3,7 +3,9 @@ package com.example.myapplication.ui.telas.inicio
 import com.example.myapplication.data.local.entity.Criptograma
 import com.example.myapplication.data.local.entity.Partida
 import com.example.myapplication.data.local.entity.Usuario
-import com.example.myapplication.model.enums.Papel
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 data class InicioUiState(
     val usuarioId: Int? = null,
@@ -15,6 +17,20 @@ data class InicioUiState(
 ) {
     fun criptogramaDaPartida(partida: Partida): Criptograma? {
         return criptogramas.find { it.id == partida.criptogramaId }
+    }
+
+    fun tituloDaPartida(partida: Partida): String {
+        val criptograma = criptogramaDaPartida(partida) ?: return "Caso removido"
+        return "Nº ${criptograma.id.toString().padStart(4, '0')} · ${criptograma.categoria}"
+    }
+
+    fun tempoFormatadoDaPartida(partida: Partida): String {
+        return "%02d:%02d".format(partida.tempo / 60, partida.tempo % 60)
+    }
+
+    fun dataFormatadaDaPartida(partida: Partida): String {
+        val data = partida.concluidaEm ?: partida.iniciadaEm
+        return SimpleDateFormat("dd/MM/yyyy", Locale("pt", "BR")).format(Date(data))
     }
 
     val usuario: Usuario?
@@ -31,6 +47,11 @@ data class InicioUiState(
 
     val temCasoEmAndamento: Boolean
         get() = casoEmAndamento != null
+
+    val historico: List<Partida>
+        get() = partidasDoUsuario
+            .filter { it.concluida }
+            .sortedByDescending { it.concluidaEm ?: it.iniciadaEm }
 
     val totalLetras: Int
         get() = criptogramaEmAndamento?.frase?.count { it.isLetter() } ?: 0
@@ -49,12 +70,4 @@ data class InicioUiState(
 
     val pontos: Int
         get() = usuario?.pontos ?: 0
-
-    val ranking: List<Usuario>
-        get() = usuarios
-            .filter { it.papel == Papel.USUARIO }
-            .sortedByDescending { it.pontos }
-
-    val posicaoRanking: Int
-        get() = ranking.indexOfFirst { it.id == usuarioId } + 1
 }
