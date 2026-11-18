@@ -11,6 +11,7 @@ data class JogoUiState(
     val criptogramaId: Int? = null,
     val usuarioId: Int? = null,
     val partidaId: Int? = null,
+    val partidaConcluidaId: Int? = null,
     val partidas: List<Partida> = emptyList(),
     val criptogramas: List<Criptograma> = emptyList(),
     val palpites: Map<Char, Char> = emptyMap(),

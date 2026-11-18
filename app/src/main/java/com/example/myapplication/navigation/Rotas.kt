@@ -9,4 +9,5 @@ object Rotas {
     const val TELA_CASOS = "tela_casos"
 
     const val TELA_JOGO = "tela_jogo"
+    const val TELA_RESULTADO = "tela_resultado"
 }

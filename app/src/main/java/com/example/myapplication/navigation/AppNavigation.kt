@@ -10,6 +10,7 @@ import com.example.myapplication.model.enums.Papel
 import com.example.myapplication.ui.telas.casos.TelaCasos
 import com.example.myapplication.ui.telas.inicio.TelaInicio
 import com.example.myapplication.ui.telas.jogo.TelaJogo
+import com.example.myapplication.ui.telas.resultado.TelaResultado
 import com.example.myapplication.ui.telas.telaCriarCriptograma.TelaCriaCriptogramasAdmin
 import com.example.myapplication.ui.telas.telaDeLogin.TelaLogin
 import com.example.myapplication.ui.telas.telaDePerfil.TelaPerfil
@@ -18,6 +19,12 @@ import com.example.myapplication.ui.telas.telaListaEditaExcluiCriptograma.TelaLi
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
+
+    val voltarParaInicio: () -> Unit = {
+        navController.navigate(Rotas.TELA_INICIO) {
+            popUpTo(Rotas.TELA_INICIO) { inclusive = true }
+        }
+    }
 
     NavHost(
         navController = navController,
@@ -129,15 +136,29 @@ fun AppNavigation() {
             )
         ) { backStackEntry ->
             val id = backStackEntry.arguments?.getInt("id") ?: -1
-            val voltarParaInicio: () -> Unit = {
-                navController.navigate(Rotas.TELA_INICIO) {
-                    popUpTo(Rotas.TELA_INICIO) { inclusive = true }
-                }
-            }
             TelaJogo(
                 criptogramaId = if (id > 0) id else null,
                 onPausarClick = voltarParaInicio,
-                onConcluirClick = voltarParaInicio
+                onCasoDecifrado = { partidaId ->
+                    navController.navigate("${Rotas.TELA_RESULTADO}/$partidaId") {
+                        popUpTo("${Rotas.TELA_JOGO}?id={id}") { inclusive = true }
+                    }
+                }
+            )
+        }
+
+        composable(
+            route = "${Rotas.TELA_RESULTADO}/{partidaId}",
+            arguments = listOf(
+                navArgument("partidaId") {
+                    type = NavType.IntType
+                }
+            )
+        ) { backStackEntry ->
+            val partidaId = backStackEntry.arguments?.getInt("partidaId") ?: -1
+            TelaResultado(
+                partidaId = partidaId,
+                onVoltarInicioClick = voltarParaInicio
             )
         }
     }

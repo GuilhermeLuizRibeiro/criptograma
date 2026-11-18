@@ -37,7 +37,7 @@ data class CasosUiState(
 
     fun tempoFormatadoDoCaso(criptograma: Criptograma): String {
         val partidaEmAndamento = partidasDoCriptograma(criptograma).firstOrNull { !it.concluida }
-        val segundos = partidaEmAndamento?.tempo ?: 0L // assume que tempo está em segundos
+        val segundos = partidaEmAndamento?.tempo ?: 0L
         return "%02d:%02d".format(segundos / 60, segundos % 60)
     }
 
