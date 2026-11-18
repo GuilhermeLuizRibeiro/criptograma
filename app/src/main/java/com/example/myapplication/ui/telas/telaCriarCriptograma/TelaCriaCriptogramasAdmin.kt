@@ -39,14 +39,18 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.myapplication.data.local.database.AppDatabase
 import com.example.myapplication.data.local.entity.Criptograma
 import com.example.myapplication.data.remote.model.CitacaoDto
+import com.example.myapplication.data.repository.CriptogramaRepository
+import com.example.myapplication.data.repository.EstoicaRepository
 import com.example.myapplication.model.enums.Dificuldade
 import com.example.myapplication.ui.componentes.fundoQuadriculado
 import com.example.myapplication.ui.theme.CourierPrime
@@ -64,9 +68,14 @@ import com.example.myapplication.ui.theme.tinta
 fun TelaCriaCriptogramasAdmin(
     modifier: Modifier = Modifier,
     criptogramaId: Int? = null,
-    viewModel: TelaCriaCriptogramasAdminViewModel = viewModel(),
     onSalvarClick: (Criptograma) -> Unit = {},
     onCancelarClick: () -> Unit = {},
+    viewModel: TelaCriaCriptogramasAdminViewModel = viewModel(
+        factory = TelaCriaCriptogramasAdminViewModelFactory(
+            CriptogramaRepository(AppDatabase.getDatabase(LocalContext.current).criptogramaDAO()),
+            EstoicaRepository()
+        )
+    ),
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -236,7 +245,7 @@ fun TelaCriaCriptogramasAdminContent(
                                         onValueChange = onTermoBuscaApiChange,
                                         placeholder = {
                                             Text(
-                                                text = "Ex: motivação...",
+                                                text = "Ex: virtude, Sêneca...",
                                                 fontFamily = CourierPrime,
                                                 fontSize = 13.sp,
                                                 color = CorTextoSecundario

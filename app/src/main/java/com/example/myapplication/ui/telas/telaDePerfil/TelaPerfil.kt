@@ -27,11 +27,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.myapplication.data.local.database.AppDatabase
+import com.example.myapplication.data.repository.UsuarioRepository
 import com.example.myapplication.model.enums.Papel
 import com.example.myapplication.ui.componentes.NavegacaoRodapeAdmin
 import com.example.myapplication.ui.componentes.NavegacaoRodapeJogador
@@ -46,9 +49,13 @@ import com.example.myapplication.ui.theme.tinta
 fun TelaPerfil(
     modifier: Modifier = Modifier,
     papel: Papel = Papel.ADMIN,
-    viewModel: TelaPerfilViewModel = viewModel(),
     onItemNavegacaoClick: (String) -> Unit = {},
     onSairClick: () -> Unit = {},
+    viewModel: TelaPerfilViewModel = viewModel(
+        factory = TelaPerfilViewModelFactory(
+            UsuarioRepository(AppDatabase.getDatabase(LocalContext.current).usuarioDAO())
+        )
+    ),
 ) {
     LaunchedEffect(papel) {
         viewModel.carregarUsuario(papel)
@@ -226,8 +233,8 @@ private fun IconeAvatarPerfil(tint: Color) {
         val path = Path().apply {
             moveTo(size.width * 0.15f, size.height * 0.9f)
             cubicTo(
-                size.width * 0.15f, size.height * 0.62f,
-                size.width * 0.85f, size.height * 0.62f,
+                size.width * 0.15f, size.height * 0.65f,
+                size.width * 0.85f, size.height * 0.65f,
                 size.width * 0.85f, size.height * 0.9f
             )
         }

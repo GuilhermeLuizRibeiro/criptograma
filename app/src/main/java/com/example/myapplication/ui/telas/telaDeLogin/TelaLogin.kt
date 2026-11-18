@@ -19,14 +19,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.myapplication.data.local.database.AppDatabase
+import com.example.myapplication.data.repository.UsuarioRepository
 import com.example.myapplication.ui.componentes.fundoQuadriculado
-import com.example.myapplication.ui.theme.CourierPrime
 import com.example.myapplication.ui.theme.CorBordaCard
+import com.example.myapplication.ui.theme.CourierPrime
 import com.example.myapplication.ui.theme.acao
 import com.example.myapplication.ui.theme.ficha
 import com.example.myapplication.ui.theme.sobreAcao
@@ -34,9 +37,13 @@ import com.example.myapplication.ui.theme.sobreAcao
 @Composable
 fun TelaLogin(
     modifier: Modifier = Modifier,
-    viewModel: TelaLoginViewModel = viewModel(),
     onAdminClick: () -> Unit = {},
     onJogadorClick: () -> Unit = {},
+    viewModel: TelaLoginViewModel = viewModel(
+        factory = TelaLoginViewModelFactory(
+            UsuarioRepository(AppDatabase.getDatabase(LocalContext.current).usuarioDAO())
+        )
+    ),
 ) {
     val navegarParaAdmin = onAdminClick
     val navegarParaJogador = onJogadorClick

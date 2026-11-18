@@ -1,9 +1,7 @@
 package com.example.myapplication.ui.telas.telaListaEditaExcluiCriptograma
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.myapplication.data.local.database.AppDatabase
 import com.example.myapplication.data.local.entity.Criptograma
 import com.example.myapplication.data.repository.CriptogramaRepository
 import com.example.myapplication.model.enums.Dificuldade
@@ -13,9 +11,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class TelaListaCriptogramasAdminViewModel(application: Application) : AndroidViewModel(application) {
-
-    private val repository = CriptogramaRepository(AppDatabase.getDatabase(application).criptogramaDAO())
+class TelaListaCriptogramasAdminViewModel(
+    private val repository: CriptogramaRepository,
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(TelaListaCriptogramasAdminUiState(itemNavegacaoSelecionado = "Painel"))
     val uiState: StateFlow<TelaListaCriptogramasAdminUiState> = _uiState.asStateFlow()

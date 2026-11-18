@@ -1,9 +1,7 @@
 package com.example.myapplication.ui.telas.telaCriarCriptograma
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.myapplication.data.local.database.AppDatabase
 import com.example.myapplication.data.local.entity.Criptograma
 import com.example.myapplication.data.remote.model.CitacaoDto
 import com.example.myapplication.data.repository.CriptogramaRepository
@@ -16,10 +14,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class TelaCriaCriptogramasAdminViewModel(application: Application) : AndroidViewModel(application) {
-
-    private val repository = CriptogramaRepository(AppDatabase.getDatabase(application).criptogramaDAO())
-    private val estoicaRepository = EstoicaRepository()
+class TelaCriaCriptogramasAdminViewModel(
+    private val repository: CriptogramaRepository,
+    private val estoicaRepository: EstoicaRepository,
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(TelaCriaCriptogramasAdminUiState())
     val uiState: StateFlow<TelaCriaCriptogramasAdminUiState> = _uiState.asStateFlow()

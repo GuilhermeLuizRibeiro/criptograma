@@ -33,20 +33,22 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.myapplication.data.local.database.AppDatabase
 import com.example.myapplication.data.local.entity.Criptograma
+import com.example.myapplication.data.repository.CriptogramaRepository
 import com.example.myapplication.model.enums.Dificuldade
 import com.example.myapplication.ui.componentes.NavegacaoRodapeAdmin
 import com.example.myapplication.ui.componentes.fundoQuadriculado
 import com.example.myapplication.ui.theme.CourierPrime
 import com.example.myapplication.ui.theme.CorBadgeEscuro
 import com.example.myapplication.ui.theme.CorBordaCard
-import com.example.myapplication.ui.theme.CorTextoEscuro
 import com.example.myapplication.ui.theme.CorTextoSecundario
 import com.example.myapplication.ui.theme.CorTextoVermelho
 import com.example.myapplication.ui.theme.abaInativa
@@ -60,11 +62,15 @@ import com.example.myapplication.ui.theme.tinta
 @Composable
 fun TelaListaCriptogramasAdmin(
     modifier: Modifier = Modifier,
-    viewModel: TelaListaCriptogramasAdminViewModel = viewModel(),
     onNovoCasoClick: () -> Unit = {},
     onEditarClick: (Criptograma) -> Unit = {},
     onExcluirClick: (Criptograma) -> Unit = {},
     onItemNavegacaoClick: (String) -> Unit = {},
+    viewModel: TelaListaCriptogramasAdminViewModel = viewModel(
+        factory = TelaListaCriptogramasAdminViewModelFactory(
+            CriptogramaRepository(AppDatabase.getDatabase(LocalContext.current).criptogramaDAO())
+        )
+    ),
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
