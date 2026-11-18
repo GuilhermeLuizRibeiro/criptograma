@@ -45,7 +45,7 @@ fun AppNavigation() {
             TelaInicio(
                 onItemNavegacaoClick = { item ->
                     if (item == "Perfil") {
-                        navController.navigate(Rotas.TELA_PERFIL)
+                        navController.navigate("${Rotas.TELA_PERFIL}/${Papel.USUARIO.name}")
                     } else if(item == "Casos") {
                         navController.navigate(Rotas.TELA_CASOS)
                     }
