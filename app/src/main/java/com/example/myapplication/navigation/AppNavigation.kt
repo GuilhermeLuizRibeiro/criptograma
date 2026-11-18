@@ -9,6 +9,7 @@ import androidx.navigation.navArgument
 import com.example.myapplication.model.enums.Papel
 import com.example.myapplication.ui.telas.casos.TelaCasos
 import com.example.myapplication.ui.telas.inicio.TelaInicio
+import com.example.myapplication.ui.telas.jogo.TelaJogo
 import com.example.myapplication.ui.telas.telaCriarCriptograma.TelaCriaCriptogramasAdmin
 import com.example.myapplication.ui.telas.telaDeLogin.TelaLogin
 import com.example.myapplication.ui.telas.telaDePerfil.TelaPerfil
@@ -37,10 +38,13 @@ fun AppNavigation() {
             TelaInicio(
                 onItemNavegacaoClick = { item ->
                     if (item == "Perfil") {
-                        navController.navigate("${Rotas.TELA_PERFIL}/${Papel.USUARIO.name}")
-                    } else if (item == "Casos") {
+                        navController.navigate(Rotas.TELA_PERFIL)
+                    } else if(item == "Casos") {
                         navController.navigate(Rotas.TELA_CASOS)
                     }
+                },
+                onContinuarClick = {
+                    navController.navigate(Rotas.TELA_JOGO)
                 }
             )
         }
@@ -132,7 +136,32 @@ fun AppNavigation() {
                         }
                         "Perfil" -> navController.navigate("${Rotas.TELA_PERFIL}/${Papel.USUARIO.name}")
                     }
+                },
+                onCasoClick = { criptograma ->
+                    navController.navigate("${Rotas.TELA_JOGO}?id=${criptograma.id}")
                 }
+            )
+        }
+
+        composable(
+            route = "${Rotas.TELA_JOGO}?id={id}",
+            arguments = listOf(
+                navArgument("id") {
+                    type = NavType.IntType
+                    defaultValue = -1
+                }
+            )
+        ) { backStackEntry ->
+            val id = backStackEntry.arguments?.getInt("id") ?: -1
+            val voltarParaInicio: () -> Unit = {
+                navController.navigate(Rotas.TELA_INICIO) {
+                    popUpTo(Rotas.TELA_INICIO) { inclusive = true }
+                }
+            }
+            TelaJogo(
+                criptogramaId = if (id > 0) id else null,
+                onPausarClick = voltarParaInicio,
+                onConcluirClick = voltarParaInicio
             )
         }
     }

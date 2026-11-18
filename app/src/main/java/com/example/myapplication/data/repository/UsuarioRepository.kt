@@ -9,6 +9,8 @@ class UsuarioRepository(private val dao: UsuarioDAO) {
 
     fun listarTodos(): Flow<List<Usuario>> = dao.listarTodos()
 
+    suspend fun buscarPorId(id: Int): Usuario? = dao.buscarPorId(id)
+
     suspend fun salvar(usuario: Usuario) {
         if (usuario.id > 0) {
             dao.atualizar(usuario)
