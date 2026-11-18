@@ -2,7 +2,6 @@ package com.example.myapplication.ui.telas.inicio
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,16 +13,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -46,9 +40,11 @@ import com.example.myapplication.data.local.entity.Criptograma
 import com.example.myapplication.data.repository.CriptogramaRepository
 import com.example.myapplication.data.repository.PartidaRepository
 import com.example.myapplication.data.repository.UsuarioRepository
+import com.example.myapplication.data.local.entity.Partida
 import com.example.myapplication.model.enums.Dificuldade
 import com.example.myapplication.ui.componentes.Clipe
 import com.example.myapplication.ui.componentes.EtiquetaEvidencia
+import com.example.myapplication.ui.componentes.FitaDificuldade
 import com.example.myapplication.ui.componentes.LinhaPontilhada
 import com.example.myapplication.ui.componentes.NavegacaoRodapeAdmin
 import com.example.myapplication.ui.componentes.NavegacaoRodapeJogador
@@ -64,7 +60,6 @@ import com.example.myapplication.ui.theme.tinta
 fun TelaInicio(
     onItemNavegacaoClick: (String) -> Unit = {},
     onContinuarClick: () -> Unit = {},
-    onRankingClick: () -> Unit = {},
     viewModel: InicioViewModel = viewModel(
         factory = InicioViewModelFactory(
             UsuarioRepository(AppDatabase.getDatabase(LocalContext.current).usuarioDAO()),
@@ -107,10 +102,7 @@ fun TelaInicio(
                 uiState.casosResolvidos,
                 uiState.pontos
             )
-            CardRanking(
-                uiState.posicaoRanking,
-                onRankingClick
-            )
+            CardHistorico(uiState)
         }
     }
 }
@@ -206,34 +198,110 @@ fun CardSeuArquivo(casosResolvidos: Int, pontos: Int) {
 }
 
 @Composable
-fun CardRanking(posicao: Int, onClick: () -> Unit) {
+fun CardHistorico(uiState: InicioUiState) {
+    val historico = uiState.historico
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(ficha)
+            .border(1.dp, linha)
+            .padding(14.dp),
+    ) {
+        Text(
+            text = "Histórico",
+            color = tinta,
+            fontFamily = CourierPrime,
+            fontWeight = FontWeight.Bold,
+            fontSize = 16.sp,
+            lineHeight = 24.sp
+        )
+        Spacer(Modifier.height(8.dp))
+        if (historico.isEmpty()) {
+            HistoricoVazio()
+        } else {
+            historico.forEachIndexed { indice, partida ->
+                if (indice > 0) {
+                    DivisorHistorico()
+                }
+                ItemHistorico(
+                    titulo = uiState.tituloDaPartida(partida),
+                    dificuldade = uiState.criptogramaDaPartida(partida)?.dificuldade,
+                    data = uiState.dataFormatadaDaPartida(partida),
+                    tempo = uiState.tempoFormatadoDaPartida(partida),
+                    pontos = partida.pontuacao
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun ItemHistorico(
+    titulo: String,
+    dificuldade: Dificuldade?,
+    data: String,
+    tempo: String,
+    pontos: Int
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .border(1.dp, tinta)
-            .clickable(onClick = onClick)
-            .heightIn(min = 48.dp)
-            .padding(horizontal = 14.dp, vertical = 12.dp),
+            .padding(vertical = 10.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text("Ranking", color = tinta, fontFamily = CourierPrime, fontSize = 16.sp)
-        Row(verticalAlignment = Alignment.CenterVertically) {
+        Column {
             Text(
-                text = if (posicao > 0) "Você: ${posicao}º" else "Você: —",
+                text = titulo,
                 color = tinta,
                 fontFamily = CourierPrime,
-                fontSize = 16.sp
+                fontSize = 14.sp,
+                lineHeight = 20.sp
             )
-            Spacer(Modifier.width(8.dp))
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                contentDescription = null,
-                tint = tinta,
-                modifier = Modifier.size(20.dp)
+            if (dificuldade != null) {
+                Spacer(Modifier.height(6.dp))
+                FitaDificuldade(dificuldade)
+            }
+        }
+        Column(horizontalAlignment = Alignment.End) {
+            Text(
+                text = data,
+                color = tinta,
+                fontFamily = CourierPrime,
+                fontSize = 12.sp,
+                lineHeight = 16.sp
+            )
+            Text(
+                text = "$tempo · $pontos pts",
+                color = tinta,
+                fontFamily = CourierPrime,
+                fontSize = 14.sp,
+                lineHeight = 20.sp
             )
         }
     }
+}
+
+@Composable
+fun DivisorHistorico() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(1.dp)
+            .background(linha)
+    )
+}
+
+@Composable
+fun HistoricoVazio() {
+    Text(
+        text = "Nenhum caso resolvido ainda",
+        color = tinta,
+        fontFamily = CourierPrime,
+        fontSize = 14.sp,
+        lineHeight = 20.sp
+    )
 }
 
 @Composable

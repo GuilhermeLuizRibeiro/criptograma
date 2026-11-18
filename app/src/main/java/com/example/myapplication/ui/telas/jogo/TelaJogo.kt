@@ -26,6 +26,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -69,6 +71,7 @@ import com.example.myapplication.ui.theme.mesa
 import com.example.myapplication.ui.theme.polaroid
 import com.example.myapplication.ui.theme.polaroidFundo
 import com.example.myapplication.ui.theme.silhueta
+import com.example.myapplication.ui.theme.sobreAcao
 import com.example.myapplication.ui.theme.sobreFita
 import com.example.myapplication.ui.theme.tarja
 import com.example.myapplication.ui.theme.teclaUsada
@@ -77,6 +80,8 @@ import com.example.myapplication.ui.theme.tinta
 @Composable
 fun TelaJogo(
     criptogramaId: Int? = null,
+    onPausarClick: () -> Unit = {},
+    onConcluirClick: () -> Unit = {},
     viewModel: JogoViewModel = viewModel(
         factory = JogoViewModelFactory(
             UsuarioRepository(AppDatabase.getDatabase(LocalContext.current).usuarioDAO()),
@@ -99,20 +104,24 @@ fun TelaJogo(
                 pausado = uiState.pausado,
                 tempo = uiState.tempoFormatado,
                 erros = uiState.erros,
-                onPausarClick = viewModel::onPausarClick
+                onPausarClick = onPausarClick
             )
         },
         bottomBar = {
-            PainelInferiorJogo(
-                linhasTeclado = uiState.linhasTeclado,
-                teclasUsadas = uiState.teclasUsadas,
-                habilitado = uiState.podeInteragir,
-                originalRevelado = uiState.originalRevelado,
-                onRevelarLetraClick = viewModel::onRevelarLetraClick,
-                onVerOriginalClick = viewModel::onVerOriginalClick,
-                onLetraClick = viewModel::onLetraDigitada,
-                onApagarClick = viewModel::onApagarClick
-            )
+            if (uiState.decifrado) {
+                BotaoVoltarInicio(onClick = onConcluirClick)
+            } else {
+                PainelInferiorJogo(
+                    linhasTeclado = uiState.linhasTeclado,
+                    teclasUsadas = uiState.teclasUsadas,
+                    habilitado = uiState.podeInteragir,
+                    originalRevelado = uiState.originalRevelado,
+                    onRevelarLetraClick = viewModel::onRevelarLetraClick,
+                    onVerOriginalClick = viewModel::onVerOriginalClick,
+                    onLetraClick = viewModel::onLetraDigitada,
+                    onApagarClick = viewModel::onApagarClick
+                )
+            }
         }
     ) { innerPadding ->
         Column(
@@ -522,6 +531,30 @@ fun TarjaAutor(autor: String, revelado: Boolean) {
                 fontSize = 14.sp
             )
         }
+    }
+}
+
+@Composable
+fun BotaoVoltarInicio(onClick: () -> Unit) {
+    Button(
+        onClick = onClick,
+        modifier = Modifier
+            .fillMaxWidth()
+            .navigationBarsPadding()
+            .padding(start = 12.dp, end = 12.dp, bottom = 8.dp)
+            .heightIn(min = 48.dp),
+        shape = RectangleShape,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = acao,
+            contentColor = sobreAcao
+        )
+    ) {
+        Text(
+            text = "Voltar ao início",
+            fontFamily = CourierPrime,
+            fontWeight = FontWeight.Bold,
+            fontSize = 16.sp
+        )
     }
 }
 

@@ -49,11 +49,14 @@ data class CasosUiState(
         return criptograma.frase.split(Regex("\\s+")).count { it.isNotBlank() }
     }
 
+    val casosPendentes: List<Criptograma>
+        get() = criptogramas.filter { statusDoCaso(it) != StatusCaso.DECIFRADO }
+
     val categorias: List<String>
-        get() = criptogramas.map { it.categoria }.distinct().sorted()
+        get() = casosPendentes.map { it.categoria }.distinct().sorted()
 
     val criptogramasFiltrados: List<Criptograma>
-        get() = criptogramas.filter { criptograma ->
+        get() = casosPendentes.filter { criptograma ->
             val bateDificuldade = dificuldadeSelecionada == null ||
                     criptograma.dificuldade == dificuldadeSelecionada
             val bateCategoria = categoriaSelecionada == null ||
