@@ -7,6 +7,7 @@ import com.example.myapplication.data.repository.PartidaRepository
 import com.example.myapplication.data.repository.UsuarioRepository
 import com.example.myapplication.model.enums.Dificuldade
 import com.example.myapplication.model.enums.Papel
+import com.example.myapplication.ui.theme.erro
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -28,6 +29,11 @@ class CasosViewModel(
                 .onSuccess { usuario ->
                     _uiState.update {
                         aplicarFiltros(it.copy(usuarioId = usuario.id, carregando = false))
+                    }
+                }
+                .onFailure { erro ->
+                    _uiState.update {
+                        it.copy(carregando = false, mensagemErro = erro.message)
                     }
                 }
         }

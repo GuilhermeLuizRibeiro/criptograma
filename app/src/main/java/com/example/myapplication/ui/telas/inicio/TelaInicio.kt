@@ -49,6 +49,7 @@ import com.example.myapplication.ui.componentes.LinhaPontilhada
 import com.example.myapplication.ui.componentes.NavegacaoRodapeAdmin
 import com.example.myapplication.ui.componentes.NavegacaoRodapeJogador
 import com.example.myapplication.ui.componentes.fundoQuadriculado
+import com.example.myapplication.ui.theme.CorTextoVermelho
 import com.example.myapplication.ui.theme.CourierPrime
 import com.example.myapplication.ui.theme.acao
 import com.example.myapplication.ui.theme.ficha
@@ -90,6 +91,15 @@ fun TelaInicio(
                 .padding(horizontal = 12.dp, vertical = 4.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
+            uiState.mensagemErro?.let { mensagem ->
+                Text(
+                    text = mensagem,
+                    fontFamily = CourierPrime,
+                    fontSize = 12.sp,
+                    color = CorTextoVermelho
+                )
+            }
+
             uiState.criptogramaEmAndamento?.let { criptograma ->
                 CardContinuarCaso(
                     criptograma,

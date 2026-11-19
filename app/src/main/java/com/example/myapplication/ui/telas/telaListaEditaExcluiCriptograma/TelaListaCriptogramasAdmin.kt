@@ -144,6 +144,16 @@ fun TelaListaCriptogramasAdminContent(
                 )
             }
 
+            uiState.mensagemErro?.let { mensagem ->
+                Text(
+                    text = mensagem,
+                    fontFamily = CourierPrime,
+                    fontSize = 12.sp,
+                    color = CorTextoVermelho,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+            }
+
             // Abas de Filtro (Todos, Fácil, Médio, Difícil)
             Row(
                 modifier = Modifier.fillMaxWidth(),

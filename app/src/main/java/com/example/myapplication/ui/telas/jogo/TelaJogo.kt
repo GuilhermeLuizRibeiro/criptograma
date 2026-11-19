@@ -60,6 +60,7 @@ import com.example.myapplication.model.enums.StatusCaso
 import com.example.myapplication.ui.componentes.Clipe
 import com.example.myapplication.ui.componentes.EtiquetaEvidencia
 import com.example.myapplication.ui.componentes.fundoQuadriculado
+import com.example.myapplication.ui.theme.CorTextoVermelho
 import com.example.myapplication.ui.theme.CourierPrime
 import com.example.myapplication.ui.theme.acao
 import com.example.myapplication.ui.theme.carimbo
@@ -134,8 +135,20 @@ fun TelaJogo(
                 .verticalScroll(rememberScrollState())
                 .padding(start = 12.dp, end = 12.dp, top = 16.dp, bottom = 12.dp)
         ) {
+            uiState.mensagemErro?.let { mensagem ->
+                Text(
+                    text = mensagem,
+                    fontFamily = CourierPrime,
+                    fontSize = 12.sp,
+                    color = CorTextoVermelho,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+            }
+
             if (criptograma == null) {
-                MensagemCarregando()
+                if (uiState.mensagemErro == null) {
+                    MensagemCarregando()
+                }
             } else {
                 CardCaso(
                     criptograma = criptograma,

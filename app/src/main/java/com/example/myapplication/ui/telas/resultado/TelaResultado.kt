@@ -48,6 +48,7 @@ import com.example.myapplication.data.repository.UsuarioRepository
 import com.example.myapplication.ui.componentes.EtiquetaEvidencia
 import com.example.myapplication.ui.componentes.LinhaPontilhada
 import com.example.myapplication.ui.componentes.fundoQuadriculado
+import com.example.myapplication.ui.theme.CorTextoVermelho
 import com.example.myapplication.ui.theme.CourierPrime
 import com.example.myapplication.ui.theme.acao
 import com.example.myapplication.ui.theme.carimbo
@@ -92,8 +93,19 @@ fun TelaResultado(
                 .padding(horizontal = 12.dp, vertical = 4.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
+            uiState.mensagemErro?.let { mensagem ->
+                Text(
+                    text = mensagem,
+                    fontFamily = CourierPrime,
+                    fontSize = 12.sp,
+                    color = CorTextoVermelho
+                )
+            }
+
             if (criptograma == null) {
-                MensagemCarregandoResultado()
+                if (uiState.mensagemErro == null) {
+                    MensagemCarregandoResultado()
+                }
             } else {
                 CardCasoDecifrado(
                     criptograma = criptograma,

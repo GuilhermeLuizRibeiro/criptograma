@@ -1,8 +1,10 @@
 package com.example.myapplication.data.repository
 
+import android.util.Log
 import com.example.myapplication.data.remote.api.EstoicaApiService
 import com.example.myapplication.data.remote.api.RetrofitClient
 import com.example.myapplication.data.remote.model.CitacaoDto
+import kotlinx.coroutines.CancellationException
 
 class EstoicaRepository(
     private val apiService: EstoicaApiService = RetrofitClient.estoicaApiService,
@@ -19,8 +21,11 @@ class EstoicaRepository(
             }
 
             Result.success(filtradas)
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
-            Result.failure(e)
+            Log.e("EstoicaRepository", "Não foi possível buscar as citações.", e)
+            Result.failure(Exception("Não foi possível buscar as citações. Verifique sua conexão."))
         }
     }
 }
