@@ -63,5 +63,4 @@ class UsuarioRepository(private val dao: UsuarioDAO) {
             Result.failure(Exception("Não foi possível entrar."))
         }
     }
-    fun listarRanking(): List<Usuario> = dao.listarRanking()
 }

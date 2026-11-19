@@ -27,7 +27,4 @@ interface UsuarioDAO {
 
     @Query("SELECT * FROM usuarios ORDER BY nome")
     fun listarTodos(): Flow<List<Usuario>>
-
-    @Query("SELECT * FROM usuarios WHERE papel = 'USUARIO' ORDER BY pontos DESC")
-    fun listarRanking(): List<Usuario>
 }

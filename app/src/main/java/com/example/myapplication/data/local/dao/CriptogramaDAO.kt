@@ -26,12 +26,4 @@ interface CriptogramaDAO {
 
     @Query("SELECT * FROM criptogramas ORDER BY id DESC")
     fun listarTodos(): Flow<List<Criptograma>>
-
-    @Query("""
-        SELECT * FROM criptogramas
-        WHERE (:dificuldade IS NULL OR dificuldade = :dificuldade)
-          AND (:categoria IS NULL OR categoria = :categoria)
-        ORDER BY id
-    """)
-    fun filtrar(dificuldade: Dificuldade?, categoria: String?): Flow<List<Criptograma>>
 }

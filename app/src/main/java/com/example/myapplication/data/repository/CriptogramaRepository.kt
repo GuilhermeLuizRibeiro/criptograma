@@ -1,11 +1,8 @@
 package com.example.myapplication.data.repository
 
 import android.util.Log
-import androidx.compose.runtime.CancellationHandle
-import androidx.compose.runtime.snapshots.SnapshotApplyResult
 import com.example.myapplication.data.local.dao.CriptogramaDAO
 import com.example.myapplication.data.local.entity.Criptograma
-import com.example.myapplication.model.enums.Dificuldade
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 
@@ -14,9 +11,6 @@ class CriptogramaRepository(private val dao: CriptogramaDAO) {
     fun listarTodos(): Flow<List<Criptograma>> {
         return dao.listarTodos()
     }
-
-    fun filtrar(dificuldade: Dificuldade?, categoria: String?): Flow<List<Criptograma>> =
-        dao.filtrar(dificuldade, categoria)
 
     suspend fun buscarPorId(id: Int): Result<Criptograma?> {
         return try {
