@@ -27,7 +27,7 @@ data class ResultadoUiState(
         get() = partida?.erros ?: 0
 
     val totalDicas: Int
-        get() = (partida?.dicasUsadas ?: 0) + if (partida?.originalRevelado == true) 1 else 0
+        get() = (partida?.dicasUsadas ?: 0)
 
     val pontuacao: Int
         get() = partida?.pontuacao ?: 0

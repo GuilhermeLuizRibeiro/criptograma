@@ -122,9 +122,7 @@ fun TelaJogo(
                 linhasTeclado = uiState.linhasTeclado,
                 teclasUsadas = uiState.teclasUsadas,
                 habilitado = uiState.podeInteragir,
-                originalRevelado = uiState.originalRevelado,
                 onRevelarLetraClick = viewModel::onRevelarLetraClick,
-                onVerOriginalClick = viewModel::onVerOriginalClick,
                 onLetraClick = viewModel::onLetraDigitada,
                 onApagarClick = viewModel::onApagarClick
             )
@@ -144,7 +142,6 @@ fun TelaJogo(
                     status = uiState.statusCaso,
                     palavras = uiState.palavras,
                     pausado = uiState.pausado,
-                    originalRevelado = uiState.originalRevelado,
                     frase = uiState.frase,
                     autor = uiState.autor,
                     autorRevelado = uiState.autorRevelado,
@@ -206,7 +203,6 @@ fun CardCaso(
     status: StatusCaso,
     palavras: List<PalavraCriptograma>,
     pausado: Boolean,
-    originalRevelado: Boolean,
     frase: String,
     autor: String,
     autorRevelado: Boolean,
@@ -226,9 +222,6 @@ fun CardCaso(
                 MensagemPausado()
             } else {
                 GradeCriptograma(palavras = palavras, onCelulaClick = onCelulaClick)
-            }
-            if (originalRevelado) {
-                OriginalRevelado(frase = frase)
             }
             SecaoAutor(autor = autor, revelado = autorRevelado)
         }
@@ -431,33 +424,6 @@ fun MensagemCarregando() {
 }
 
 @Composable
-fun OriginalRevelado(frase: String) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(ficha2)
-            .border(1.dp, tinta)
-            .padding(12.dp)
-    ) {
-        Text(
-            text = "Original",
-            color = tinta,
-            fontFamily = CourierPrime,
-            fontWeight = FontWeight.Bold,
-            fontSize = 14.sp
-        )
-        Spacer(Modifier.height(4.dp))
-        Text(
-            text = frase,
-            color = tinta,
-            fontFamily = CourierPrime,
-            fontSize = 14.sp,
-            lineHeight = 20.sp
-        )
-    }
-}
-
-@Composable
 fun SecaoAutor(autor: String, revelado: Boolean) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         FotoAutor(inicial = if (revelado) autor.take(1).uppercase() else "?")
@@ -545,9 +511,7 @@ fun PainelInferiorJogo(
     linhasTeclado: List<String>,
     teclasUsadas: Set<Char>,
     habilitado: Boolean,
-    originalRevelado: Boolean,
     onRevelarLetraClick: () -> Unit,
-    onVerOriginalClick: () -> Unit,
     onLetraClick: (Char) -> Unit,
     onApagarClick: () -> Unit
 ) {
@@ -560,9 +524,7 @@ fun PainelInferiorJogo(
     ) {
         BotoesDica(
             habilitado = habilitado,
-            originalRevelado = originalRevelado,
             onRevelarLetraClick = onRevelarLetraClick,
-            onVerOriginalClick = onVerOriginalClick
         )
         TecladoVirtual(
             linhas = linhasTeclado,
@@ -577,9 +539,7 @@ fun PainelInferiorJogo(
 @Composable
 fun BotoesDica(
     habilitado: Boolean,
-    originalRevelado: Boolean,
     onRevelarLetraClick: () -> Unit,
-    onVerOriginalClick: () -> Unit
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -590,12 +550,6 @@ fun BotoesDica(
             icone = Icons.Filled.Search,
             habilitado = habilitado,
             onClick = onRevelarLetraClick,
-            modifier = Modifier.weight(1f)
-        )
-        BotaoDica(
-            texto = "Ver original · -${JogoUiState.CUSTO_VER_ORIGINAL}",
-            habilitado = habilitado && !originalRevelado,
-            onClick = onVerOriginalClick,
             modifier = Modifier.weight(1f)
         )
     }
