@@ -81,33 +81,36 @@ class JogoViewModel(
 
     fun onCelulaClick(letraCifrada: Char) {
         _uiState.update {
-            if (!it.podeInteragir) it
-            else recalcular(it.copy(letraCifradaSelecionada = letraCifrada))
+            if (!it.podeInteragir) {
+                it
+            } else {
+                recalcular(it.copy(letraCifradaSelecionada = letraCifrada))
+            }
         }
     }
 
     fun onLetraDigitada(letra: Char) {
-        _uiState.update { s ->
-            val cifrada = s.letraCifradaSelecionada ?: return@update s
-            val original = s.respostas[cifrada] ?: return@update s
-            if (!s.podeInteragir || s.palpites[cifrada] == original) return@update s
+        _uiState.update { estado ->
+            val cifrada = estado.letraCifradaSelecionada ?: return@update estado
+            val original = estado.respostas[cifrada] ?: return@update estado
+            if (!estado.podeInteragir || estado.palpites[cifrada] == original) return@update estado
 
             val errou = letra != original
-            val palpites = s.palpites + (cifrada to letra)
-            val erros = if (errou && s.palpites[cifrada] != letra) s.erros + 1 else s.erros
+            val palpites = estado.palpites + (cifrada to letra)
+            val erros = if (errou && estado.palpites[cifrada] != letra) estado.erros + 1 else estado.erros
             val proxima = if (errou) cifrada
-            else proximaLetraPendente(cifrada, s.letrasCifradas, s.respostas, palpites)
+            else proximaLetraPendente(cifrada, estado.letrasCifradas, estado.respostas, palpites)
 
-            recalcular(s.copy(palpites = palpites, erros = erros, letraCifradaSelecionada = proxima))
+            recalcular(estado.copy(palpites = palpites, erros = erros, letraCifradaSelecionada = proxima))
         }
         salvarSeDecifrado()
     }
 
     fun onApagarClick() {
-        _uiState.update { s ->
-            val cifrada = s.letraCifradaSelecionada ?: return@update s
-            if (!s.podeInteragir || s.palpites[cifrada] == s.respostas[cifrada]) return@update s
-            recalcular(s.copy(palpites = s.palpites - cifrada))
+        _uiState.update { estado ->
+            val cifrada = estado.letraCifradaSelecionada ?: return@update estado
+            if (!estado.podeInteragir || estado.palpites[cifrada] == estado.respostas[cifrada]) return@update estado
+            recalcular(estado.copy(palpites = estado.palpites - cifrada))
         }
     }
 
@@ -119,22 +122,22 @@ class JogoViewModel(
     }
 
     fun onRevelarLetraClick() {
-        _uiState.update { s ->
-            if (!s.podeInteragir) return@update s
-            val selecionada = s.letraCifradaSelecionada
-                ?.takeIf { s.palpites[it] != s.respostas[it] }
+        _uiState.update { estado ->
+            if (!estado.podeInteragir) return@update estado
+            val selecionada = estado.letraCifradaSelecionada
+                ?.takeIf { estado.palpites[it] != estado.respostas[it] }
             val alvo = selecionada
-                ?: proximaLetraPendente(s.letraCifradaSelecionada, s.letrasCifradas, s.respostas, s.palpites)
-                ?: return@update s
-            val original = s.respostas[alvo] ?: return@update s
+                ?: proximaLetraPendente(estado.letraCifradaSelecionada, estado.letrasCifradas, estado.respostas, estado.palpites)
+                ?: return@update estado
+            val original = estado.respostas[alvo] ?: return@update estado
 
-            val palpites = s.palpites + (alvo to original)
+            val palpites = estado.palpites + (alvo to original)
             recalcular(
-                s.copy(
+                estado.copy(
                     palpites = palpites,
-                    dicasUsadas = s.dicasUsadas + 1,
+                    dicasUsadas = estado.dicasUsadas + 1,
                     letraCifradaSelecionada =
-                        proximaLetraPendente(alvo, s.letrasCifradas, s.respostas, palpites)
+                        proximaLetraPendente(alvo, estado.letrasCifradas, estado.respostas, palpites)
                 )
             )
         }

@@ -45,3 +45,34 @@ Tela lista dos criptogramas para o admin:
 Tela do formulário:
 
 ![Tela do formulário mockup](anexos/prints/formulario-mockup.png)
+
+## Videos do desenvolvimento:
+
+telas admin inicial:
+
+https://drive.google.com/file/d/1eQYCkZquKhQoOXHWl_3f-hBQyl5AcYC6/view?usp=sharing
+
+tela inicio:
+
+https://drive.google.com/file/d/1rR6ui0cVIaBiBFCtBb2ArHcP98KeVJmR/view?usp=sharing
+
+tela casos:
+
+https://drive.google.com/file/d/1Dq1G0ECKbZmb_D2o1VL8bpVXT1lEORHT/view?usp=sharing
+
+tela jogo:
+
+https://drive.google.com/file/d/1oC93KvuJcXFLIKVt6b2SGbT7UXlikvwU/view?usp=sharing
+
+tela resultado:
+
+https://drive.google.com/file/d/1HTZKk0CUd8LvHd3l9iZOeIcF59GrTzDY/view?usp=sharing
+
+## Vídeo final de demonstração:
+
+https://drive.google.com/file/d/14BNJ4Xxsp4_8zhbSgOcJv01LwdC7TzdH/view?usp=sharing
+
+## Integrantes:
+
+Guilherme Luiz Ribeiro
+Cauê Alves Oliveira
