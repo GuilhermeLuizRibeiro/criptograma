@@ -41,6 +41,7 @@ import com.example.myapplication.ui.componentes.NavegacaoRodapeJogador
 import com.example.myapplication.ui.componentes.fundoQuadriculado
 import com.example.myapplication.ui.theme.CourierPrime
 import com.example.myapplication.ui.theme.CorBordaCard
+import com.example.myapplication.ui.theme.CorTextoVermelho
 import com.example.myapplication.ui.theme.ficha
 import com.example.myapplication.ui.theme.ficha2
 import com.example.myapplication.ui.theme.tinta
@@ -115,6 +116,16 @@ fun TelaPerfilContent(
                 color = tinta,
                 modifier = Modifier.padding(bottom = 16.dp)
             )
+
+            uiState.erro?.let { mensagem ->
+                Text(
+                    text = mensagem,
+                    fontFamily = CourierPrime,
+                    fontSize = 12.sp,
+                    color = CorTextoVermelho,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+            }
 
             // Card com informações do usuário
             Card(

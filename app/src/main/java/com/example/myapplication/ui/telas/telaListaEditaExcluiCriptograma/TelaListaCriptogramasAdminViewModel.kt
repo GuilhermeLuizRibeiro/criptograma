@@ -61,7 +61,10 @@ class TelaListaCriptogramasAdminViewModel(
                 idExterno = "API_0006"
             )
         )
-        iniciais.forEach { repository.salvar(it) }
+        iniciais.forEach { cripto ->
+            repository.salvar(cripto)
+                .onFailure { erro -> _uiState.update { it.copy(mensagemErro = erro.message) } }
+        }
     }
 
     fun onBuscaChange(novaBusca: String) {
@@ -79,6 +82,7 @@ class TelaListaCriptogramasAdminViewModel(
     fun excluirCriptograma(criptograma: Criptograma) {
         viewModelScope.launch {
             repository.excluir(criptograma)
+                .onFailure { erro -> _uiState.update { it.copy(mensagemErro = erro.message) } }
         }
     }
 }

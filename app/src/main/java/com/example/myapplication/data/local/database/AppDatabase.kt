@@ -11,7 +11,7 @@ import com.example.myapplication.data.local.entity.Criptograma
 import com.example.myapplication.data.local.entity.Partida
 import com.example.myapplication.data.local.entity.Usuario
 
-@Database(entities = [Usuario::class, Partida::class, Criptograma::class], version = 3)
+@Database(entities = [Usuario::class, Partida::class, Criptograma::class], version = 4)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun usuarioDAO(): UsuarioDAO
     abstract fun partidaDAO(): PartidaDAO

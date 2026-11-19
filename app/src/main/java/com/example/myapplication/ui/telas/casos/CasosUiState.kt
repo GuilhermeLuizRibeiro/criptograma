@@ -15,6 +15,7 @@ data class CasosUiState(
     val carregando: Boolean = false,
     val categorias: List<String> = emptyList(),
     val criptogramasFiltrados: List<Criptograma> = emptyList(),
+    val mensagemErro: String? = null
 ) {
     fun partidasDoCriptograma(criptograma: Criptograma): List<Partida> {
         return partidas.filter {

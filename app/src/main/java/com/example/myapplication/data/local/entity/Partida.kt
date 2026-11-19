@@ -31,7 +31,6 @@ data class Partida(
     val tempo: Long = 0,
     val erros: Int = 0,
     val dicasUsadas: Int = 0,
-    val originalRevelado: Boolean = false,
     val pontuacao: Int = 0,
     val concluida: Boolean = false,
     val estadoAtual: String,

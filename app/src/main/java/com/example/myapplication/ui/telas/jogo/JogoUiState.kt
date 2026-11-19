@@ -14,7 +14,6 @@ data class JogoUiState(
     val segundos: Long = 0L,
     val erros: Int = 0,
     val dicasUsadas: Int = 0,
-    val originalRevelado: Boolean = false,
     val pausado: Boolean = false,
     val carregando: Boolean = false,
     val mensagemErro: String? = null,
@@ -28,7 +27,6 @@ data class JogoUiState(
 ) {
     companion object {
         const val CUSTO_REVELAR_LETRA = 10
-        const val CUSTO_VER_ORIGINAL = 25
         const val PONTOS_BASE = 100
         const val PENALIDADE_ERRO = 5
     }

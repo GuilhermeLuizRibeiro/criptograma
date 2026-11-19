@@ -51,6 +51,7 @@ import com.example.myapplication.ui.componentes.Clipe
 import com.example.myapplication.ui.componentes.FitaDificuldade
 import com.example.myapplication.ui.componentes.NavegacaoRodapeJogador
 import com.example.myapplication.ui.componentes.fundoQuadriculado
+import com.example.myapplication.ui.theme.CorTextoVermelho
 import com.example.myapplication.ui.theme.CourierPrime
 import com.example.myapplication.ui.theme.abaInativa
 import com.example.myapplication.ui.theme.carimbo
@@ -91,6 +92,16 @@ fun TelaCasos(
                 .padding(innerPadding)
                 .padding(start = 12.dp, end = 12.dp, top = 4.dp, bottom = 12.dp)
         ) {
+            uiState.mensagemErro?.let { mensagem ->
+                Text(
+                    text = mensagem,
+                    fontFamily = CourierPrime,
+                    fontSize = 12.sp,
+                    color = CorTextoVermelho,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+            }
+
             AbasDificuldade(
                 dificuldadeSelecionada = uiState.dificuldadeSelecionada,
                 onDificuldadeClick = viewModel::onDificuldadeSelecionada

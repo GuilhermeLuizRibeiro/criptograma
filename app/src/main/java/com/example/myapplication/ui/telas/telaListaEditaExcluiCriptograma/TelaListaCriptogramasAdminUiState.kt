@@ -8,6 +8,7 @@ data class TelaListaCriptogramasAdminUiState(
     val filtroSelecionado: String = "Todos",
     val itemNavegacaoSelecionado: String = "Painel",
     val listaCriptogramas: List<Criptograma> = emptyList(),
+    val mensagemErro: String? = null
 ) {
     val listaFiltrada: List<Criptograma>
         get() = listaCriptogramas.filter { item ->

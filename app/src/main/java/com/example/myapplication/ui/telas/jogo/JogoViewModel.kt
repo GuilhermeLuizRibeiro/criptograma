@@ -58,7 +58,6 @@ class JogoViewModel(
                         segundos = partidaEmAndamento?.tempo ?: 0L,
                         erros = partidaEmAndamento?.erros ?: 0,
                         dicasUsadas = partidaEmAndamento?.dicasUsadas ?: 0,
-                        originalRevelado = partidaEmAndamento?.originalRevelado ?: false,
                         palpites = partidaEmAndamento
                             ?.let { EstadoPartidaCriptograma.desserializar(it.estadoAtual) }
                             ?: emptyMap()
@@ -142,13 +141,6 @@ class JogoViewModel(
         salvarSeDecifrado()
     }
 
-    fun onVerOriginalClick() {
-        _uiState.update {
-            if (!it.podeInteragir || it.originalRevelado) it
-            else recalcular(it.copy(originalRevelado = true))
-        }
-    }
-
     private fun salvarSeDecifrado() {
         if (_uiState.value.decifrado) {
             viewModelScope.launch { salvarPartida() }
@@ -175,7 +167,6 @@ class JogoViewModel(
                 tempo = state.segundos,
                 erros = state.erros,
                 dicasUsadas = state.dicasUsadas,
-                originalRevelado = state.originalRevelado,
                 pontuacao = if (concluida) state.pontuacaoFinal else 0,
                 concluida = concluida,
                 estadoAtual = EstadoPartidaCriptograma.serializar(state.palpites),
@@ -226,8 +217,7 @@ class JogoViewModel(
         val respostas = celulasLetra.associate { it.letraCifrada!! to it.letraOriginal!! }
         val decifrado = respostas.isNotEmpty() &&
                 respostas.all { (cifrada, original) -> state.palpites[cifrada] == original }
-        val penalidade = state.dicasUsadas * JogoUiState.CUSTO_REVELAR_LETRA +
-                if (state.originalRevelado) JogoUiState.CUSTO_VER_ORIGINAL else 0
+        val penalidade = state.dicasUsadas * JogoUiState.CUSTO_REVELAR_LETRA
 
         return state.copy(
             palavras = palavras,
