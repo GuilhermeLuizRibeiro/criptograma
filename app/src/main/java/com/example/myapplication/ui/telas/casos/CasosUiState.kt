@@ -12,7 +12,9 @@ data class CasosUiState(
     val dificuldadeSelecionada: Dificuldade? = null,
     val categoriaSelecionada: String? = null,
     val itemNavegacaoSelecionado: String = "Casos",
-    val carregando: Boolean = false
+    val carregando: Boolean = false,
+    val categorias: List<String> = emptyList(),
+    val criptogramasFiltrados: List<Criptograma> = emptyList(),
 ) {
     fun partidasDoCriptograma(criptograma: Criptograma): List<Partida> {
         return partidas.filter {
@@ -48,21 +50,6 @@ data class CasosUiState(
     fun totalPalavras(criptograma: Criptograma): Int {
         return criptograma.frase.split(Regex("\\s+")).count { it.isNotBlank() }
     }
-
-    val casosPendentes: List<Criptograma>
-        get() = criptogramas.filter { statusDoCaso(it) != StatusCaso.DECIFRADO }
-
-    val categorias: List<String>
-        get() = casosPendentes.map { it.categoria }.distinct().sorted()
-
-    val criptogramasFiltrados: List<Criptograma>
-        get() = casosPendentes.filter { criptograma ->
-            val bateDificuldade = dificuldadeSelecionada == null ||
-                    criptograma.dificuldade == dificuldadeSelecionada
-            val bateCategoria = categoriaSelecionada == null ||
-                    criptograma.categoria == categoriaSelecionada
-            bateDificuldade && bateCategoria
-        }
 
     val quantidadeCasos: Int
         get() = criptogramasFiltrados.size

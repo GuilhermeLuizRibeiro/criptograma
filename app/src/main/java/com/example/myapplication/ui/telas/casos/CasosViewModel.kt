@@ -26,34 +26,55 @@ class CasosViewModel(
         viewModelScope.launch {
             repositoryUsuario.garantirUsuarioDefault(Papel.USUARIO)
                 .onSuccess { usuario ->
-                    _uiState.update { currentState ->
-                        currentState.copy(usuarioId = usuario.id, carregando = false)
+                    _uiState.update {
+                        aplicarFiltros(it.copy(usuarioId = usuario.id, carregando = false))
                     }
                 }
         }
 
         viewModelScope.launch {
             repositoryPartida.listarTodos().collect { partidas ->
-                _uiState.update { currentState ->
-                    currentState.copy(partidas = partidas)
+                _uiState.update {
+                    aplicarFiltros(it.copy(partidas = partidas))
                 }
             }
         }
 
         viewModelScope.launch {
             repositoryCriptograma.listarTodos().collect { criptogramas ->
-                _uiState.update { currentState ->
-                    currentState.copy(criptogramas = criptogramas)
+                _uiState.update {
+                    aplicarFiltros(it.copy(criptogramas = criptogramas))
                 }
             }
         }
     }
 
     fun onDificuldadeSelecionada(dificuldade: Dificuldade?) {
-        _uiState.update { it.copy(dificuldadeSelecionada = dificuldade) }
+        _uiState.update {
+            aplicarFiltros(it.copy(dificuldadeSelecionada = dificuldade))
+        }
     }
 
     fun onCategoriaSelecionada(categoria: String?) {
-        _uiState.update { it.copy(categoriaSelecionada = categoria) }
+        _uiState.update {
+            aplicarFiltros(it.copy(categoriaSelecionada = categoria))
+        }
+    }
+
+    private fun aplicarFiltros(state: CasosUiState): CasosUiState {
+        val pendentes = state.criptogramas.filter { c ->
+            state.partidas.none {
+                it.usuarioId == state.usuarioId && it.criptogramaId == c.id && it.concluida
+            }
+        }
+        val filtrados = pendentes
+            .filter { state.dificuldadeSelecionada == null || it.dificuldade == state.dificuldadeSelecionada }
+            .filter { state.categoriaSelecionada == null || it.categoria == state.categoriaSelecionada }
+            .sortedBy { it.dificuldade }
+
+        return state.copy(
+            categorias = pendentes.map { it.categoria }.distinct().sorted(),
+            criptogramasFiltrados = filtrados
+        )
     }
 }

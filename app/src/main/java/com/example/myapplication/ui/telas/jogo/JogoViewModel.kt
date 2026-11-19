@@ -2,11 +2,15 @@ package com.example.myapplication.ui.telas.jogo
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.myapplication.data.local.entity.Criptograma
 import com.example.myapplication.data.local.entity.Partida
 import com.example.myapplication.data.repository.CriptogramaRepository
 import com.example.myapplication.data.repository.PartidaRepository
 import com.example.myapplication.data.repository.UsuarioRepository
+import com.example.myapplication.model.CelulaCriptograma
+import com.example.myapplication.model.CifraCriptograma
 import com.example.myapplication.model.EstadoPartidaCriptograma
+import com.example.myapplication.model.PalavraCriptograma
 import com.example.myapplication.model.enums.Papel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,9 +28,7 @@ class JogoViewModel(
     private val repositoryCriptograma: CriptogramaRepository,
     criptogramaId: Int?
 ) : ViewModel() {
-    private val _uiState = MutableStateFlow(
-        JogoUiState(criptogramaId = criptogramaId, carregando = true)
-    )
+    private val _uiState = MutableStateFlow(JogoUiState(carregando = true))
 
     val uiState: StateFlow<JogoUiState> = _uiState.asStateFlow()
 
@@ -43,90 +45,70 @@ class JogoViewModel(
             val partidaEmAndamento = partidas.firstOrNull {
                 it.usuarioId == usuario.id && it.criptogramaId == idCriptograma && !it.concluida
             }
-            _uiState.update { currentState ->
-                currentState.copy(
-                    usuarioId = usuario.id,
-                    carregando = false,
-                    partidaId = partidaEmAndamento?.id,
-                    segundos = partidaEmAndamento?.tempo ?: 0L,
-                    erros = partidaEmAndamento?.erros ?: 0,
-                    dicasUsadas = partidaEmAndamento?.dicasUsadas ?: 0,
-                    originalRevelado = partidaEmAndamento?.originalRevelado ?: false,
-                    palpites = partidaEmAndamento
-                        ?.let { EstadoPartidaCriptograma.desserializar(it.estadoAtual) }
-                        ?: emptyMap()
+            val criptograma = idCriptograma?.let { id ->
+                repositoryCriptograma.buscarPorId(id).getOrElse { e -> registrarErro(e); return@launch }
+            }
+            _uiState.update {
+                recalcular(
+                    it.copy(
+                        usuarioId = usuario.id,
+                        criptograma = criptograma,
+                        carregando = false,
+                        partidaId = partidaEmAndamento?.id,
+                        segundos = partidaEmAndamento?.tempo ?: 0L,
+                        erros = partidaEmAndamento?.erros ?: 0,
+                        dicasUsadas = partidaEmAndamento?.dicasUsadas ?: 0,
+                        originalRevelado = partidaEmAndamento?.originalRevelado ?: false,
+                        palpites = partidaEmAndamento
+                            ?.let { EstadoPartidaCriptograma.desserializar(it.estadoAtual) }
+                            ?: emptyMap()
+                    )
                 )
-            }
-        }
-
-        viewModelScope.launch {
-            repositoryPartida.listarTodos().collect { partidas ->
-                _uiState.update { currentState ->
-                    currentState.copy(partidas = partidas)
-                }
-            }
-        }
-
-        viewModelScope.launch {
-            repositoryCriptograma.listarTodos().collect { criptogramas ->
-                _uiState.update { currentState ->
-                    currentState.copy(criptogramas = criptogramas)
-                }
             }
         }
 
         viewModelScope.launch {
             while (true) {
                 delay(1000)
-                _uiState.update { currentState ->
-                    if (currentState.podeInteragir) {
-                        currentState.copy(segundos = currentState.segundos + 1)
-                    } else {
-                        currentState
-                    }
+                _uiState.update {
+                    if (it.podeInteragir) {
+                        val s = it.segundos + 1
+                        it.copy(segundos = s, tempoFormatado = formatarTempo(s))
+                    } else it
                 }
             }
         }
     }
 
     fun onCelulaClick(letraCifrada: Char) {
-        _uiState.update { currentState ->
-            if (!currentState.podeInteragir) return@update currentState
-            currentState.copy(letraCifradaSelecionada = letraCifrada)
+        _uiState.update {
+            if (!it.podeInteragir) it
+            else recalcular(it.copy(letraCifradaSelecionada = letraCifrada))
         }
     }
 
     fun onLetraDigitada(letra: Char) {
-        _uiState.update { currentState ->
-            val cifrada = currentState.letraCifradaSelecionada ?: return@update currentState
-            val original = currentState.respostas[cifrada] ?: return@update currentState
-            if (!currentState.podeInteragir || currentState.palpites[cifrada] == original) {
-                return@update currentState
-            }
+        _uiState.update { s ->
+            val cifrada = s.letraCifradaSelecionada ?: return@update s
+            val original = s.respostas[cifrada] ?: return@update s
+            if (!s.podeInteragir || s.palpites[cifrada] == original) return@update s
 
             val errou = letra != original
-            val atualizado = currentState.copy(
-                palpites = currentState.palpites + (cifrada to letra),
-                erros = if (errou && currentState.palpites[cifrada] != letra) {
-                    currentState.erros + 1
-                } else {
-                    currentState.erros
-                }
-            )
-            atualizado.copy(
-                letraCifradaSelecionada = if (errou) cifrada else atualizado.proximaLetraPendente(cifrada)
-            )
+            val palpites = s.palpites + (cifrada to letra)
+            val erros = if (errou && s.palpites[cifrada] != letra) s.erros + 1 else s.erros
+            val proxima = if (errou) cifrada
+            else proximaLetraPendente(cifrada, s.letrasCifradas, s.respostas, palpites)
+
+            recalcular(s.copy(palpites = palpites, erros = erros, letraCifradaSelecionada = proxima))
         }
         salvarSeDecifrado()
     }
 
     fun onApagarClick() {
-        _uiState.update { currentState ->
-            val cifrada = currentState.letraCifradaSelecionada ?: return@update currentState
-            if (!currentState.podeInteragir || currentState.palpites[cifrada] == currentState.respostas[cifrada]) {
-                return@update currentState
-            }
-            currentState.copy(palpites = currentState.palpites - cifrada)
+        _uiState.update { s ->
+            val cifrada = s.letraCifradaSelecionada ?: return@update s
+            if (!s.podeInteragir || s.palpites[cifrada] == s.respostas[cifrada]) return@update s
+            recalcular(s.copy(palpites = s.palpites - cifrada))
         }
     }
 
@@ -138,31 +120,32 @@ class JogoViewModel(
     }
 
     fun onRevelarLetraClick() {
-        _uiState.update { currentState ->
-            if (!currentState.podeInteragir) return@update currentState
-
-            val selecionada = currentState.letraCifradaSelecionada
-                ?.takeIf { currentState.palpites[it] != currentState.respostas[it] }
+        _uiState.update { s ->
+            if (!s.podeInteragir) return@update s
+            val selecionada = s.letraCifradaSelecionada
+                ?.takeIf { s.palpites[it] != s.respostas[it] }
             val alvo = selecionada
-                ?: currentState.proximaLetraPendente(currentState.letraCifradaSelecionada)
-                ?: return@update currentState
-            val original = currentState.respostas[alvo] ?: return@update currentState
+                ?: proximaLetraPendente(s.letraCifradaSelecionada, s.letrasCifradas, s.respostas, s.palpites)
+                ?: return@update s
+            val original = s.respostas[alvo] ?: return@update s
 
-            val atualizado = currentState.copy(
-                palpites = currentState.palpites + (alvo to original),
-                dicasUsadas = currentState.dicasUsadas + 1
+            val palpites = s.palpites + (alvo to original)
+            recalcular(
+                s.copy(
+                    palpites = palpites,
+                    dicasUsadas = s.dicasUsadas + 1,
+                    letraCifradaSelecionada =
+                        proximaLetraPendente(alvo, s.letrasCifradas, s.respostas, palpites)
+                )
             )
-            atualizado.copy(letraCifradaSelecionada = atualizado.proximaLetraPendente(alvo))
         }
         salvarSeDecifrado()
     }
 
     fun onVerOriginalClick() {
-        _uiState.update { currentState ->
-            if (!currentState.podeInteragir || currentState.originalRevelado) {
-                return@update currentState
-            }
-            currentState.copy(originalRevelado = true)
+        _uiState.update {
+            if (!it.podeInteragir || it.originalRevelado) it
+            else recalcular(it.copy(originalRevelado = true))
         }
     }
 
@@ -234,4 +217,67 @@ class JogoViewModel(
     private fun registrarErro(e: Throwable) {
         _uiState.update { it.copy(carregando = false, mensagemErro = e.message) }
     }
+
+    private fun recalcular(state: JogoUiState): JogoUiState {
+        val criptograma = state.criptograma
+        val palavras = if (criptograma == null) emptyList()
+        else montarPalavras(criptograma, state.palpites, state.letraCifradaSelecionada)
+        val celulasLetra = palavras.flatMap { it.celulas }.filter { it.ehLetra }
+        val respostas = celulasLetra.associate { it.letraCifrada!! to it.letraOriginal!! }
+        val decifrado = respostas.isNotEmpty() &&
+                respostas.all { (cifrada, original) -> state.palpites[cifrada] == original }
+        val penalidade = state.dicasUsadas * JogoUiState.CUSTO_REVELAR_LETRA +
+                if (state.originalRevelado) JogoUiState.CUSTO_VER_ORIGINAL else 0
+
+        return state.copy(
+            palavras = palavras,
+            respostas = respostas,
+            letrasCifradas = celulasLetra.mapNotNull { it.letraCifrada }.distinct(),
+            decifrado = decifrado,
+            teclasUsadas = state.palpites.values.toSet(),
+            tempoFormatado = formatarTempo(state.segundos),
+            pontuacaoFinal = (JogoUiState.PONTOS_BASE - state.erros * JogoUiState.PENALIDADE_ERRO - penalidade).coerceAtLeast(0)
+        )
+    }
+
+    private fun montarPalavras(
+        criptograma: Criptograma,
+        palpites: Map<Char, Char>,
+        selecionada: Char?
+    ): List<PalavraCriptograma> {
+        val mapa = CifraCriptograma.gerarMapa(criptograma.id)
+        return criptograma.frase
+            .split(Regex("\\s+"))
+            .filter { it.isNotBlank() }
+            .map { palavra ->
+                PalavraCriptograma(
+                    palavra.map { caractere ->
+                        val original = CifraCriptograma.normalizar(caractere)
+                        val cifrada = mapa[original]
+                        if (cifrada == null) CelulaCriptograma(caractere = caractere)
+                        else CelulaCriptograma(
+                            caractere = caractere,
+                            letraOriginal = original,
+                            letraCifrada = cifrada,
+                            palpite = palpites[cifrada],
+                            destacada = cifrada == selecionada
+                        )
+                    }
+                )
+            }
+    }
+
+    private fun proximaLetraPendente(
+        atual: Char?,
+        letras: List<Char>,
+        respostas: Map<Char, Char>,
+        palpites: Map<Char, Char>
+    ): Char? {
+        if (letras.isEmpty()) return null
+        val inicio = (atual?.let { letras.indexOf(it) } ?: -1) + 1
+        return (letras.drop(inicio) + letras.take(inicio))
+            .firstOrNull { palpites[it] != respostas[it] }
+    }
+
+    private fun formatarTempo(segundos: Long) = "%02d:%02d".format(segundos / 60, segundos % 60)
 }

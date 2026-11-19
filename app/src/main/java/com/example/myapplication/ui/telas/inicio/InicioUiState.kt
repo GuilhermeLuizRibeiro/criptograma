@@ -14,7 +14,9 @@ data class InicioUiState(
     val criptogramas: List<Criptograma> = emptyList(),
     val itemNavegacaoSelecionado: String = "Início",
     val carregando: Boolean = false,
-    val mensagemErro: String? = null
+    val mensagemErro: String? = null,
+    val historico: List<Partida> = emptyList(),
+    val partidasDoUsuario: List<Partida> = emptyList()
 ) {
     fun criptogramaDaPartida(partida: Partida): Criptograma? {
         return criptogramas.find { it.id == partida.criptogramaId }
@@ -37,22 +39,11 @@ data class InicioUiState(
     val usuario: Usuario?
         get() = usuarios.find { it.id == usuarioId }
 
-    val partidasDoUsuario: List<Partida>
-        get() = partidas.filter { it.usuarioId == usuarioId }
-
     val casoEmAndamento: Partida?
         get() = partidasDoUsuario.firstOrNull { !it.concluida }
 
     val criptogramaEmAndamento: Criptograma?
         get() = casoEmAndamento?.let { criptogramaDaPartida(it) }
-
-    val temCasoEmAndamento: Boolean
-        get() = casoEmAndamento != null
-
-    val historico: List<Partida>
-        get() = partidasDoUsuario
-            .filter { it.concluida }
-            .sortedByDescending { it.concluidaEm ?: it.iniciadaEm }
 
     val totalLetras: Int
         get() = criptogramaEmAndamento?.frase?.count { it.isLetter() } ?: 0

@@ -2,6 +2,7 @@ package com.example.myapplication.ui.telas.inicio
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.myapplication.data.local.entity.Partida
 import com.example.myapplication.data.repository.CriptogramaRepository
 import com.example.myapplication.data.repository.PartidaRepository
 import com.example.myapplication.data.repository.UsuarioRepository
@@ -25,7 +26,7 @@ class InicioViewModel(
         viewModelScope.launch {
             repositoryUsuario.garantirUsuarioDefault(Papel.USUARIO)
                 .onSuccess { usuario ->
-                    _uiState.update { it.copy(usuarioId = usuario.id, carregando = false) }
+                    _uiState.update { recalcular(it.copy(usuarioId = usuario.id, carregando = false)) }
                 }
                 .onFailure { erro ->
                     _uiState.update { it.copy(carregando = false, mensagemErro = erro.message) }
@@ -42,18 +43,28 @@ class InicioViewModel(
 
         viewModelScope.launch {
             repositoryPartida.listarTodos().collect { partidas ->
-                _uiState.update { currentState ->
-                    currentState.copy(partidas = partidas)
+                _uiState.update {
+                    recalcular(it.copy(partidas = partidas))
                 }
             }
         }
 
         viewModelScope.launch {
             repositoryCriptograma.listarTodos().collect { criptogramas ->
-                _uiState.update { currentState ->
-                    currentState.copy(criptogramas = criptogramas)
+                _uiState.update {
+                    recalcular(it.copy(criptogramas = criptogramas))
                 }
             }
         }
+    }
+
+    private fun recalcular(state: InicioUiState): InicioUiState {
+        val doUsuario = state.partidas.filter { it.usuarioId == state.usuarioId }
+        return state.copy(
+            partidasDoUsuario = doUsuario,
+            historico = doUsuario
+                .filter { it.concluida }
+                .sortedByDescending { it.concluidaEm ?: it.iniciadaEm }
+        )
     }
 }
