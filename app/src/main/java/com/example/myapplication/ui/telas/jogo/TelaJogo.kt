@@ -112,7 +112,6 @@ fun TelaJogo(
         containerColor = Color.Transparent,
         topBar = {
             BarraSuperiorJogo(
-                pausado = uiState.pausado,
                 tempo = uiState.tempoFormatado,
                 erros = uiState.erros,
                 onPausarClick = { viewModel.onPausarClick(onPausarClick) }
@@ -154,8 +153,6 @@ fun TelaJogo(
                     criptograma = criptograma,
                     status = uiState.statusCaso,
                     palavras = uiState.palavras,
-                    pausado = uiState.pausado,
-                    frase = uiState.frase,
                     autor = uiState.autor,
                     autorRevelado = uiState.autorRevelado,
                     onCelulaClick = viewModel::onCelulaClick
@@ -167,7 +164,6 @@ fun TelaJogo(
 
 @Composable
 fun BarraSuperiorJogo(
-    pausado: Boolean,
     tempo: String,
     erros: Int,
     onPausarClick: () -> Unit
@@ -180,7 +176,7 @@ fun BarraSuperiorJogo(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        BotaoPausar(pausado = pausado, onClick = onPausarClick)
+        BotaoPausar(onClick = onPausarClick)
         Text(
             text = "$tempo · Erros $erros",
             fontFamily = CourierPrime,
@@ -191,7 +187,7 @@ fun BarraSuperiorJogo(
 }
 
 @Composable
-fun BotaoPausar(pausado: Boolean, onClick: () -> Unit) {
+fun BotaoPausar(onClick: () -> Unit) {
     Box(
         modifier = Modifier
             .background(mesa)
@@ -202,7 +198,7 @@ fun BotaoPausar(pausado: Boolean, onClick: () -> Unit) {
         contentAlignment = Alignment.Center
     ) {
         Text(
-            text = if (pausado) "Retomar" else "Pausar",
+            text = "Pausar",
             color = tinta,
             fontFamily = CourierPrime,
             fontSize = 14.sp
@@ -215,8 +211,6 @@ fun CardCaso(
     criptograma: Criptograma,
     status: StatusCaso,
     palavras: List<PalavraCriptograma>,
-    pausado: Boolean,
-    frase: String,
     autor: String,
     autorRevelado: Boolean,
     onCelulaClick: (Char) -> Unit
@@ -231,11 +225,7 @@ fun CardCaso(
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
             CabecalhoCaso(criptograma = criptograma, status = status)
-            if (pausado) {
-                MensagemPausado()
-            } else {
-                GradeCriptograma(palavras = palavras, onCelulaClick = onCelulaClick)
-            }
+            GradeCriptograma(palavras = palavras, onCelulaClick = onCelulaClick)
             SecaoAutor(autor = autor, revelado = autorRevelado)
         }
         Clipe(
@@ -398,23 +388,6 @@ fun CelulaPontuacao(caractere: Char) {
             color = tinta,
             fontFamily = CourierPrime,
             fontSize = 18.sp
-        )
-    }
-}
-
-@Composable
-fun MensagemPausado() {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .heightIn(min = 120.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = "Jogo pausado",
-            color = tinta,
-            fontFamily = CourierPrime,
-            fontSize = 16.sp
         )
     }
 }

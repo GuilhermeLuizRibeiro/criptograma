@@ -14,7 +14,6 @@ data class JogoUiState(
     val segundos: Long = 0L,
     val erros: Int = 0,
     val dicasUsadas: Int = 0,
-    val pausado: Boolean = false,
     val carregando: Boolean = false,
     val mensagemErro: String? = null,
     val respostas: Map<Char, Char> = emptyMap(),
@@ -36,5 +35,5 @@ data class JogoUiState(
     val autor: String get() = criptograma?.autor ?: ""
     val autorRevelado: Boolean get() = decifrado
     val statusCaso: StatusCaso get() = if (decifrado) StatusCaso.DECIFRADO else StatusCaso.EM_ANDAMENTO
-    val podeInteragir: Boolean get() = criptograma != null && !pausado && !decifrado
+    val podeInteragir: Boolean get() = criptograma != null && !decifrado
 }
